@@ -34,7 +34,7 @@ Docker is a client program that you run in a terminal. It is also a server progr
 
 Docker has a program that builds containers from code. It takes your code, along with its dependencies and bundles it up and seals it into a container and it is a service that distributes these containers across the internet and it makes it so you can find other peoples work and they can find your work. Docker is also a company that makes all of these containers.
 
-## setting up Docker
+## Setting up Docker
 
 Dockers primary job is to manage a Linux server and start and stop your containers as required.
 
