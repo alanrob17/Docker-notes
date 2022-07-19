@@ -348,3 +348,173 @@ You can do both of these steps in the one command with ``docker commit magical_b
 
 This is a simpler process. It is much easier than doing a commit and then doing a tag but just remember that underneath the hood that it is doing both commands.
 
+## Using Path Variablse in Volume Mapping in containers
+
+We want to use an Nginx image to serve web pages. We need to run Nginx with an exposed port.
+
+Nginx works on http or https and can be used as a load balancer spreading content across multiple web servers.
+
+**Note:** I usually run Docker to download an image if it isn't on my PC. Another way to do this is.
+
+```bash
+    docker pull nginx
+```
+
+Once we ``pull`` an image we are able to use it as a container.
+
+The basic command is
+
+```bash
+    docker run nginx
+```
+
+This leaves the container running but you don't see any output. This means that we are connected to the STDIN and STDOUT of the **nginx process** of the container.
+
+Open another terminal and check that the container is running.
+
+```bash
+    docker ps -l
+```
+
+Where ``-l`` show the last container opened.
+
+```bash
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+7310c22962df   nginx     "/docker-entrypoint.…"   14 seconds ago   Up 13 seconds   80/tcp    kind_mirzakhani
+```
+
+**Note:** that this container is running on Port 80. If you try to run port 80 in your browser you will get a 404 error. You are not able to connect to this web server.
+
+If you want to connect to the web server you have to use **port mapping**.
+
+Stop this container with a ``CTRL-C``.
+
+### Stopping a container
+
+If, for some reason you want to kill a container you can do this with the container Id or the name of the container.
+
+In the case above I could kill this with.
+
+```bash
+    docker stop 7310c22962df
+```
+
+**Note:** you could have done ``docker stop 73`` and the container would have stopped.
+
+Or
+
+```bash
+    docker stop kind_mirzakhani
+```
+
+In this case it would be better to use.
+
+```bash
+    docker kill 7310c22962df
+```
+
+We do this because the ``sh`` process doesn't react to the SIGTERM that is sent by Docker to the Docker container after ``docker stop``. In 10 seconds ``docker stop`` reverts to the ``docker kill`` process.
+
+Do the following command to see if all containers have stopped.
+
+```bash
+    docker ps
+```
+
+### Port mapping
+
+We need to open up an external port for the container so that we can run the web server.
+
+```bash
+    docker run -p 8080:80 nginx
+```
+
+This opens us up in the container leaving a cursor running in the terminal.
+
+Crack open a browser with ``localhost:8080``.
+
+![Docker container running a web server](assets/images/docker/localhost-web-server.jpg "Docker container running a web server")
+
+We have launched this container with option ``-p``. Nginx is running on port 80 inside the container. On windows with Docker Desktop IP addresses of the containers are "not reachable". ``-p 8080:80`` means open up the port 8080 on my computer and forward it to port 80 inside the container. The external port 8080 is mapped to the internal port 80 inside your container. You can use any external port but the internal port must be 80.
+
+If you look at the terminal you will see logs displayed through STDOUT from the container to the screen. 
+
+The web page shows the default page that is coming from the container. We can create our own content to run with the nginx container.
+
+### Nginx container with custom content
+
+Once we stop the nginx container the port 8080 is no longer exposed to the browser.
+
+To run our own content within the nginx container we have to create a new web project.
+
+Navigate into the **home/alanr/Documents* folder and create a new folder named **website**.
+
+Create a new index.html file and add a favicon.ico file to the folder.
+
+To show this content we will have to do port mapping and volume mapping.
+
+```bash
+    docker run -p 8080:80 -v /home/alanr/Documents/website:/usr/share/nginx/html nginx
+```
+
+In this command we are exposing the external port ``-p 8080:80`` and mapping a local volume to the default content folder in nginx.
+
+``-v /home/alanr/Documents/website:/usr/share/nginx/html`` means map the local content (``/home/alanr/Documents/website``) to the default content folder in nginx (``/usr/share/nginx/html``).
+
+In the web browser.
+
+![Docker container running my content](assets/images/docker/my-content.jpg "Docker container running my content")
+
+**Note:** The favicon has been installed correctly. You can see it in the tab.
+
+## Volume Mapping in the Docker Containers
+
+We have a hard coded local path in our volume. This can cause problems in containers so we are going to replace that with the current patch as a variable.
+
+```bash
+    docker run -p 8080:80 -v $PWD:/usr/share/nginx/html nginx
+```
+
+**$PWD** is the current working folder where our website resides.
+
+**Note:** We can use the PC's IP to server our web pages. On Windows use **ipconfig** to get your IP address. In my case, *http://192.168.1.105:8080/*.
+
+## Docker Containers Management (Ubuntu, Nginx)
+
+### Running containers in the background
+
+Usually containers with long running processes like **nginx**, **mongodb** or **redis** are started and are running in the background.
+
+If we run our **hello-world** image again it prints out a message and once its process has finished it shuts down the container.
+
+When we run **alpine**.
+
+```bash
+    docker run alpine
+```
+
+The process runs and once again when the process terminates it shuts down the container.
+
+Check the history for the alpine image.
+
+```bash
+    docker history alpine
+```
+
+Returns.
+
+```bash
+IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
+c059bfaa849c   8 weeks ago   /bin/sh -c #(nop)  CMD ["/bin/sh"]              0B
+<missing>      8 weeks ago   /bin/sh -c #(nop) ADD file:9233f6f2237d79659…   5.59MB
+```
+
+This shows the command that has run. In one of those process's it ran the shell, ``/bin/sh``. This process opened up a shell and waited for STDIN and STDOUT messages to run.
+
+When we ran ``docker run alpine`` we didn't allow it to run with STDIN and STDOUT. We can do this with the flags ``-it``.
+
+```bash
+    docker run -ti alpine
+```
+
+In this case you will be presented with a cursor in the running process that is waiting for STDIN or STDOUT. If you do a ``docker ps`` in another terminal window the command will show you that you are running in a shell (/bin/sh)
