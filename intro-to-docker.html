@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>intro-to-docker.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="tim-corey---introduction-to-docker">Tim Corey - Introduction to Docker</h1>
+<h2 id="create-an-image">Create an image</h2>
+<p>We want to create a web server to run some HTML code. A very small image can be created using <code>httpd</code> which will use a cutdown version of Alpine as the operating system. This will only be around 55 Mb in size.</p>
+<p>Command to pull the image: <strong>docker pull httpd:alpine</strong> .</p>
+<p>We won't use this but will use a build command to create the image.</p>
+<p>We now create a folder to hold our web source code which consists of a simple HTML page named <code>Index.html</code>.</p>
+<p>Root folder <code>IntroToDocker</code>, contains <code>Dockerfile</code> that is used to build our image.</p>
+<p>Sub folder <code>html</code>, contains an <code>Index.html</code> page.</p>
+<h3 id="dockerfile-contains">Dockerfile contains</h3>
+<pre class="hljs"><code><div>	<span class="hljs-keyword">FROM</span> httpd:alpine
+	<span class="hljs-keyword">COPY</span><span class="bash"> ./html/ /usr/<span class="hljs-built_in">local</span>/apache2/htdocs/</span>
+</div></code></pre>
+<p>Where <strong>FROM</strong> is the image to pull.<br>
+And we <strong>COPY</strong> our files from the <code>./html/</code> folder and load them into the Alpine image folder, <code>/usr/local/apache2/htdocs/</code> .</p>
+<p>We are now able to user our <strong>Dockerfile</strong> to build an image.</p>
+<pre class="hljs"><code><div>docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span> .
+</div></code></pre>
+<p>Do a search for the image you created.</p>
+<pre class="hljs"><code><div>	docker images h*
+</div></code></pre>
+<blockquote>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED         SIZE<br>
+hello-docker   1.0.0     113447870bc6   3 minutes ago   55MB<br>
+hellonode      latest    fc0b418d4dbd   11 months ago   113MB<br>
+hello-world    latest    feb5d9fea6a5   13 months ago   13.3kB</p>
+</blockquote>
+<p>We can do a history on the image using the <strong>Image Id</strong>.</p>
+<pre class="hljs"><code><div>	docker image history <span class="hljs-number">113</span>
+</div></code></pre>
+<p>Is the complete setup of our image and includes the byte size of each part.</p>
+<pre class="hljs"><code><div>IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
+113447870bc6   3 minutes ago   COPY ./html/ /usr/local/apache2/htdocs/ # bu…   349B      buildkit.dockerfile.v0
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  CMD [&quot;httpd-foreground&quot;]     0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  EXPOSE 80                    0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop) COPY file:c432ff61c4993ecd…   138B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  STOPSIGNAL SIGWINCH          0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -eux;   apk add --no-cache --…   12.7MB
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_PATCHES=           0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_SHA256=eb397fee…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_VERSION=2.4.54     0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -eux;  apk add --no-cache   a…   36.7MB
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop) WORKDIR /usr/local/apache2    0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c mkdir -p &quot;$HTTPD_PREFIX&quot;  &amp;&amp; chow…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV PATH=/usr/local/apach…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_PREFIX=/usr/loc…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -x  &amp;&amp; adduser -u 82 -D -S -G…   4.68kB
+&lt;missing&gt;      2 months ago    /bin/sh -c #(nop)  CMD [&quot;/bin/sh&quot;]              0B
+&lt;missing&gt;      2 months ago    /bin/sh -c #(nop) ADD file:2a949686d9886ac7c…   5.54MB
+</div></code></pre>
+<p>The bottom line is the operating system and this is the first thing that was created.</p>
+<p>This line is the web server.</p>
+<blockquote>
+<p>/bin/sh -c set -eux;  apk add --no-cache   a…   36.7MB</p>
+</blockquote>
+<p>This line (the latest line) is the code we copied into the image.</p>
+<blockquote>
+<p>COPY ./html/ /usr/local/apache2/htdocs/ # bu…   349B</p>
+</blockquote>
+<h2 id="create-a-container">Create a container</h2>
+<p>We now create a container to run our image. The container is <strong>read/write</strong> so we can add content to it. If you stop running the container you will lose your changes because the container will be created from your existing image which is <strong>read only</strong>.</p>
+<p>If you destroy the container it is gone but the image stays until you remove it.</p>
+<pre class="hljs"><code><div>	docker run -<span class="hljs-literal">-name</span> first<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span>
+</div></code></pre>
+<p>We call our container <code>first-container</code>.</p>
+<p>We need a port to run our web server, <code>-p 8080:80</code> .</p>
+<p><em>8080</em> is a port on our system and <em>80</em> is used to connect to the image, <code>hello-docker:1.0.0</code> .</p>
+<p>We usually only need the first 3 characters of the <strong>Container Id</strong> to identify it.</p>
+<p>If we look at our Powershell output we see the line.</p>
+<blockquote>
+<p>172.17.0.1 - - [07/Nov/2022:07:13:04 +0000] &quot;GET / HTTP/1.1&quot; 200 185</p>
+</blockquote>
+<p>This is returning the <code>Index.html</code> page (return status 200) and it returned 185 bytes.</p>
+<p>This is the container we are running with its image name and tag.</p>
+<pre class="hljs"><code><div>CONTAINER ID   IMAGE ...
+a014eaedaf47   hello-docker:1.0.0 
+</div></code></pre>
+<p>We can stop the container from running by.</p>
+<pre class="hljs"><code><div>	docker stop a01
+</div></code></pre>
+<p>If we want to remove the container.</p>
+<pre class="hljs"><code><div>	docker rm a01
+</div></code></pre>
+<p>Add a new file to our <em>html</em> folder named <code>help.html</code>.</p>
+<p>The original hello-docker:1.0.0 image won't have our changes because images never change so we will create a new image with our changes in it.</p>
+<pre class="hljs"><code><div>	docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span> .
+</div></code></pre>
+<p>To check our images</p>
+<pre class="hljs"><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+</div></code></pre>
+<blockquote>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED              SIZE<br>
+hello-docker   1.0.1     71a874cb898c   About a minute ago   55MB<br>
+hello-docker   1.0.0     113447870bc6   About an hour ago    55MB</p>
+</blockquote>
+<p>We increment the tag and we can run it with.</p>
+<pre class="hljs"><code><div>	docker run -<span class="hljs-literal">-name</span> second<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span>
+</div></code></pre>
+<p>We now have our new website running.</p>
+<p>Note: we can't name two containers with the same name. This would cause an error.</p>
+<p>We now have two images with both containing different code.</p>
+<pre class="hljs"><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+</div></code></pre>
+<blockquote>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED       SIZE<br>
+hello-docker   1.0.1     71a874cb898c   2 hours ago   55MB<br>
+hello-docker   1.0.0     113447870bc6   3 hours ago   55MB</p>
+</blockquote>
+<p>Shows that I have two images. I know know that <code>hello-docker:1.0.1</code> has my full web source so I can delete <code>hello-docker:1.0.0</code>.</p>
+<pre class="hljs"><code><div>	docker rmi <span class="hljs-number">113</span>
+</div></code></pre>
+<p>Where <code>rmi</code> removes an image.</p>
+<h2 id="benefits-of-docker">Benefits of Docker</h2>
+<p>You can build and tear down images and containers very quickly and easily.</p>
+<p>Once you finish testing you can deploy your code and remove your images.</p>
+<p>Docker saves you from having to install a lot of software on your system. You can create an image and use that.</p>
+<p>A Docker image will never change so once you get your code working it will work forever on any system or cloud that runs Docker images.</p>
+<h3 id="remove-all-containers">Remove all containers</h3>
+<pre class="hljs"><code><div>	docker container prune
+</div></code></pre>
+
+</body>
+</html>

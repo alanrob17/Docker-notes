@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Introduction to Docker</title>
+    <link href="assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="assets/css/starter-template.css" rel="stylesheet" />
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+    <style type="text/css">
+      html {
+        font-size: 90%;
+      }
+
+      h2 {
+        margin-top: 60px;
+      }
+
+      h4,
+      h3 {
+        padding-top: 40px!;
+      }
+
+      p {
+        font-size: 1.2em;
+      }
+      h4 {
+        font-size: 1.4em;
+      }
+
+      img,
+      pre.prettyprint {
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #007bff;
+      }
+      blockquote {
+        border-left: 4px solid #999;
+        padding-left: 1rem;
+        page-break-inside: avoid;
+      }
+    </style>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+          <a class="navbar-brand" href="#"
+            >Tim Corey - Introduction to Docker</a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-target="#navbarCollapse"
+            aria-controls="navbarCollapse"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="#"
+                  >Notes <span class="sr-only">(current)</span></a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">About</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <div class="container">
+      <div class="starter-template">
+        <h1 id="tim-corey---introduction-to-docker">Introduction to Docker</h1>
+        <h2 id="create-an-image">Create an image</h2>
+        <p>
+          We want to create a web server to run some HTML code. A very small
+          image can be created using <code>httpd</code> which will use a cutdown
+          version of Alpine as the operating system. This will only be around 55
+          Mb in size.
+        </p>
+        <p>
+          Command to pull the image: <strong>docker pull httpd:alpine</strong> .
+        </p>
+        <p>
+          We won't use this but will use a build command to create the image.
+        </p>
+        <p>
+          We now create a folder to hold our web source code which consists of a
+          simple HTML page named <code>Index.html</code>.
+        </p>
+        <p>
+          Root folder <code>IntroToDocker</code>, contains
+          <code>Dockerfile</code> that is used to build our image.
+        </p>
+        <p>
+          Sub folder <code>html</code>, contains an
+          <code>Index.html</code> page.
+        </p>
+        <h3>Dockerfile contains</h3>
+        <pre
+          class="prettyprint"
+        ><code><div>	<span class="hljs-keyword">FROM</span> httpd:alpine
+	<span class="hljs-keyword">COPY</span><span class="bash"> ./html/ /usr/<span class="hljs-built_in">local</span>/apache2/htdocs/</span>
+</div></code></pre>
+        <p>
+          Where <strong>FROM</strong> is the image to pull.<br />
+          And we <strong>COPY</strong> our files from the
+          <code>./html/</code> folder and load them into the Alpine image
+          folder, <code>/usr/local/apache2/htdocs/</code> .
+        </p>
+        <p>
+          We are now able to user our <strong>Dockerfile</strong> to build an
+          image.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span> .
+</div></code></pre>
+        <p>Do a search for the image you created.</p>
+        <pre class="prettyprint"><code><div>	docker images h*
+</div></code></pre>
+        <blockquote>
+          <p>
+            REPOSITORY TAG IMAGE ID CREATED SIZE<br />
+            hello-docker 1.0.0 113447870bc6 3 minutes ago 55MB<br />
+            hellonode latest fc0b418d4dbd 11 months ago 113MB<br />
+            hello-world latest feb5d9fea6a5 13 months ago 13.3kB
+          </p>
+        </blockquote>
+        <p>
+          We can do a history on the image using the <strong>Image Id</strong>.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker image history <span class="hljs-number">113</span>
+</div></code></pre>
+        <p>
+          Is the complete setup of our image and includes the byte size of each
+          part.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
+113447870bc6   3 minutes ago   COPY ./html/ /usr/local/apache2/htdocs/ # bu…   349B      buildkit.dockerfile.v0
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  CMD [&quot;httpd-foreground&quot;]     0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  EXPOSE 80                    0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop) COPY file:c432ff61c4993ecd…   138B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  STOPSIGNAL SIGWINCH          0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -eux;   apk add --no-cache --…   12.7MB
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_PATCHES=           0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_SHA256=eb397fee…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_VERSION=2.4.54     0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -eux;  apk add --no-cache   a…   36.7MB
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop) WORKDIR /usr/local/apache2    0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c mkdir -p &quot;$HTTPD_PREFIX&quot;  &amp;&amp; chow…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV PATH=/usr/local/apach…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c #(nop)  ENV HTTPD_PREFIX=/usr/loc…   0B
+&lt;missing&gt;      4 weeks ago     /bin/sh -c set -x  &amp;&amp; adduser -u 82 -D -S -G…   4.68kB
+&lt;missing&gt;      2 months ago    /bin/sh -c #(nop)  CMD [&quot;/bin/sh&quot;]              0B
+&lt;missing&gt;      2 months ago    /bin/sh -c #(nop) ADD file:2a949686d9886ac7c…   5.54MB
+</div></code></pre>
+        <p>
+          The bottom line is the operating system and this is the first thing
+          that was created.
+        </p>
+        <p>This line is the web server.</p>
+        <blockquote>
+          <p>/bin/sh -c set -eux; apk add --no-cache a… 36.7MB</p>
+        </blockquote>
+        <p>This line (the latest line) is the code we copied into the image.</p>
+        <blockquote>
+          <p>COPY ./html/ /usr/local/apache2/htdocs/ # bu… 349B</p>
+        </blockquote>
+        <h2 id="create-a-container">Create a container</h2>
+        <p>
+          We now create a container to run our image. The container is
+          <strong>read/write</strong> so we can add content to it. If you stop
+          running the container you will lose your changes because the container
+          will be created from your existing image which is
+          <strong>read only</strong>.
+        </p>
+        <p>
+          If you destroy the container it is gone but the image stays until you
+          remove it.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker run -<span class="hljs-literal">-name</span> first<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span>
+</div></code></pre>
+        <p>We call our container <code>first-container</code>.</p>
+        <p>We need a port to run our web server, <code>-p 8080:80</code> .</p>
+        <p>
+          <em>8080</em> is a port on our system and <em>80</em> is used to
+          connect to the image, <code>hello-docker:1.0.0</code> .
+        </p>
+        <p>
+          We usually only need the first 3 characters of the
+          <strong>Container Id</strong> to identify it.
+        </p>
+        <p>If we look at our Powershell output we see the line.</p>
+        <blockquote>
+          <p>
+            172.17.0.1 - - [07/Nov/2022:07:13:04 +0000] &quot;GET /
+            HTTP/1.1&quot; 200 185
+          </p>
+        </blockquote>
+        <p>
+          This is returning the <code>Index.html</code> page (return status 200)
+          and it returned 185 bytes.
+        </p>
+        <p>This is the container we are running with its image name and tag.</p>
+        <pre class="prettyprint"><code><div>CONTAINER ID   IMAGE ...
+a014eaedaf47   hello-docker:1.0.0 
+</div></code></pre>
+        <p>We can stop the container from running by.</p>
+        <pre class="prettyprint"><code><div>	docker stop a01
+</div></code></pre>
+        <p>If we want to remove the container.</p>
+        <pre class="prettyprint"><code><div>	docker rm a01
+</div></code></pre>
+        <p>
+          Add a new file to our <em>html</em> folder named
+          <code>help.html</code>.
+        </p>
+        <p>
+          The original hello-docker:1.0.0 image won't have our changes because
+          images never change so we will create a new image with our changes in
+          it.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span> .
+</div></code></pre>
+        <p>To check our images</p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+</div></code></pre>
+        <blockquote>
+          <p>
+            REPOSITORY TAG IMAGE ID CREATED SIZE<br />
+            hello-docker 1.0.1 71a874cb898c About a minute ago 55MB<br />
+            hello-docker 1.0.0 113447870bc6 About an hour ago 55MB
+          </p>
+        </blockquote>
+        <p>We increment the tag and we can run it with.</p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker run -<span class="hljs-literal">-name</span> second<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span>
+</div></code></pre>
+        <p>We now have our new website running.</p>
+        <p>
+          Note: we can't name two containers with the same name. This would
+          cause an error.
+        </p>
+        <p>We now have two images with both containing different code.</p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+</div></code></pre>
+        <blockquote>
+          <p>
+            REPOSITORY TAG IMAGE ID CREATED SIZE<br />
+            hello-docker 1.0.1 71a874cb898c 2 hours ago 55MB<br />
+            hello-docker 1.0.0 113447870bc6 3 hours ago 55MB
+          </p>
+        </blockquote>
+        <p>
+          Shows that I have two images. I know know that
+          <code>hello-docker:1.0.1</code> has my full web source so I can delete
+          <code>hello-docker:1.0.0</code>.
+        </p>
+        <pre
+          class="prettyprint"
+        ><code><div>	docker rmi <span class="hljs-number">113</span>
+</div></code></pre>
+        <p>Where <code>rmi</code> removes an image.</p>
+        <h2 id="benefits-of-docker">Benefits of Docker</h2>
+        <p>
+          You can build and tear down images and containers very quickly and
+          easily.
+        </p>
+        <p>
+          Once you finish testing you can deploy your code and remove your
+          images.
+        </p>
+        <p>
+          Docker saves you from having to install a lot of software on your
+          system. You can create an image and use that.
+        </p>
+        <p>
+          A Docker image will never change so once you get your code working it
+          will work forever on any system or cloud that runs Docker images.
+        </p>
+        <h3 id="remove-all-containers">Remove all containers</h3>
+        <pre class="prettyprint"><code><div>	docker container prune
+</div></code></pre>
+      </div>
+      <!-- starter-template -->
+    </div>
+    <!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" />
+    <script>
+      hljs.initHighlightingOnLoad();
+    </script>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>docker-notes.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="learning-docker-2021-step-by-step">Learning Docker 2021 Step by Step</h1>
+<h2 id="what-is-docker">What is Docker</h2>
+<p>Docker carves up a Linux computer system into sealed containers that run your code. Each container is sealed from the world and runs by itself.</p>
+<p>These containers are designed to be portable so that they can be shipped from one place to another. Docker does the work of getting these containers to and from your systems.</p>
+<p>Docker also builds these containers for you and is a social platform designed to help you to find and share containers. Other people may have built containers that you can use to build on top of your won containers.</p>
+<p>Docker isn't a virtual machine it is just an operating system that has been carved up into little pieces.</p>
+<h3 id="what-is-a-container">What is a container</h3>
+<p>A container is a sealed unit of software. It has everything in it to run that piece of code including the operating system.</p>
+<p>A container includes:</p>
+<ul>
+<li>All of the <strong>code</strong>.</li>
+<li>All of the <strong>configs</strong>.</li>
+<li>contains all of the <strong>processes</strong> within that container</li>
+<li>It has all of the <strong>networking</strong> to allow these containers to talk to other containers that they need to talk to and nothing else.</li>
+<li>It has all the <strong>dependencies</strong> that your system needs bundled up in that container and it also includes just enough of the operating system to run your code.</li>
+</ul>
+<p>So Docker takes up all of the services to run a Linux server</p>
+<p><img src="assets/images/docker/linux-server.jpg" alt="Docker process" title="Docker process"></p>
+<p>The way Docker works is that it takes up all the services to run a Linux server including networking, storage, code, interprocess communication and it makes a copy of that in the Linux kernel for each container. Each container has its own little world that it can't see out of and other containers can't see in. You might have one container that runs a database in Red Hat Linux and another container that runs a web server in Ubuntu Linux and that web server might be talking to a Redis caching server container in Open Suse Ubuntu. It doesn't matter which Linux is running in each container and Docker is program that manages all of this.</p>
+<p>Docker sets it up, monitors and tears it down when it is no longer needed.</p>
+<p>Docker is a client program that you run in a terminal. It is also a server program that listens to messages from that command and manages a running Linux system.</p>
+<p>Docker has a program that builds containers from code. It takes your code, along with its dependencies and bundles it up and seals it into a container and it is a service that distributes these containers across the internet and it makes it so you can find other peoples work and they can find your work. Docker is also a company that makes all of these containers.</p>
+<h2 id="setting-up-docker">Setting up Docker</h2>
+<p>Dockers primary job is to manage a Linux server and start and stop your containers as required.</p>
+<p>Most of us don't work on laptops that run Linux all the time so many people use a virtual machine on their laptop to run the Linux server to run Docker on the server side. Docker helps run this virtual machine.</p>
+<p>Docker has tools that make this nearly transparent.</p>
+<p>To start with you have your computer and in your terminal it interacts with a program named Docker. This version of Docker is the client and that is connecting to a program named Docker that is a server controlling a Linux virtual machine. This virtual machine is being managed by Docker for Windows. Once you have it install you can click on the whale icon in your status bar. You usually don't have to interact with this program as it is fairly well automated.</p>
+<h2 id="installing-docker-desktop-on-windows">Installing Docker Desktop on Windows</h2>
+<p><strong>Note:</strong> You should install Hyper-V and containers through Windows features before you install Docker Desktop.</p>
+<p>Setup a Docker account. Once you have done this you can download Docker Desktop for Windows.</p>
+<p>In the configuration option make sure you <strong>don't</strong> select - <em>Use Windows containers instead of Linux containers</em>. We will only want to use Linux containers.</p>
+<p><strong>Note:</strong> I have WSL for Linux on my PC so I didn't get this option. It is automatically using Linux containers.</p>
+<p>Once installed pull up a terminal.</p>
+<pre class="hljs"><code><div>    docker info
+</div></code></pre>
+<p>Returns:</p>
+<blockquote>
+<p>Client:<br>
+Context:    default<br>
+Debug Mode: false<br>
+Plugins:<br>
+buildx: Docker Buildx (Docker Inc., v0.7.1)<br>
+compose: Docker Compose (Docker Inc., v2.2.1)<br>
+scan: Docker Scan (Docker Inc., v0.14.0)</p>
+<p>Server:<br>
+Containers: 10<br>
+Running: 0<br>
+Paused: 0<br>
+Stopped: 10<br>
+Images: 28<br>
+Server Version: 20.10.11<br>
+Storage Driver: overlay2<br>
+Backing Filesystem: extfs</p>
+</blockquote>
+<p>This prints out information about Docker client and server. If you see a similar message you know your system is up and running.</p>
+<p>Let's run a Docker container.</p>
+<pre class="hljs"><code><div>    docker run hello-world
+</div></code></pre>
+<p>This will run the <code>hello-world</code> container. If you don't have this container on your system Docker will download it from its repository. This won't take long because it is the smallest container you can run.</p>
+<p>The Docker container will run and print out a massage and then tear itself down.</p>
+<blockquote>
+<p>Hello from Docker!</p>
+</blockquote>
+<p>It also prints out some other information that describes the process that has just completed.</p>
+<h2 id="the-docker-flow---images-to-containers">The Docker flow - Images to containers</h2>
+<p>The Docker flow is a fundamental concept. It all begins with an image. An image is every file that is just enough of the operating system to allow you to do what you need to do. Traditionally you would install a whole operating system to do what you need to do. With Docker you pair it way down so you have a little container with just enough of the operating system to do what you need to do and you can have lots of these containers on your computer.</p>
+<p>Let's look at our Docker images.</p>
+<pre class="hljs"><code><div>    docker images
+</div></code></pre>
+<p>Returns.</p>
+<pre class="hljs"><code><div>    REPOSITORY                    TAG       IMAGE ID       CREATED        SIZE        
+    ubuntu                        latest    d13c942271d6   12 days ago    72.8MB      
+    busybox                       latest    beae173ccac6   2 weeks ago    1.24MB      
+    mysql                         8.0       3218b38490ce   4 weeks ago    516MB       
+    alanrob17/nginx-website       latest    ae6252556552   5 weeks ago    148MB       
+    ...
+</div></code></pre>
+<p><strong>Note:</strong> The <code>TAG</code> is the version number of the image and <code>IMAGE ID</code> is the internal representation of the image in Docker.</p>
+<p>Now that you have an image what do you do with it? You can run the Docker image and turn it into a running container with a process in it that is doing something. Let's look at running an image to make a container.</p>
+<pre class="hljs"><code><div>    docker run -it ubuntu:latest bash
+</div></code></pre>
+<p>where <code>-it</code> is run a terminal interface. We want to run the <code>ubuntu:latest</code> image and we want to run the <code>bash</code> shell in the container.</p>
+<p>We end up with the bash shell running a root.</p>
+<blockquote>
+<p>PS C:\Temp\docker&gt; docker run -it ubuntu:latest bash<br>
+root@35801cbffbc1:/# ls<br>
+bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt ...<br>
+root@35801cbffbc1:/#</p>
+</blockquote>
+<p>You see the bash prompt and you can run any linux command like <code>ls</code>. When we run this we can see that we have a full command line version of Ubuntu linux with a large directory structure.</p>
+<pre class="hljs"><code><div>    cat /etc/lsb-release
+</div></code></pre>
+<p>Will show us the version of Ubuntu we are using.</p>
+<blockquote>
+<p>root@35801cbffbc1:/home/my-folder# cat /etc/lsb-release<br>
+DISTRIB_ID=Ubuntu<br>
+DISTRIB_RELEASE=20.04<br>
+DISTRIB_CODENAME=focal<br>
+DISTRIB_DESCRIPTION=&quot;Ubuntu 20.04.3 LTS&quot;<br>
+root@35801cbffbc1:/home/my-folder#</p>
+</blockquote>
+<p>To exit your container type <code>exit</code> or press <code>CTRL-D</code>.</p>
+<p>Run the Docker image again and this time pop open another terminal window at the same time.</p>
+<p>In the new terminal window type.</p>
+<pre class="hljs"><code><div>    docker ps
+</div></code></pre>
+<p>This will show you a list of containers that are running at the moment.</p>
+<pre class="hljs"><code><div>    PS C:\Temp\docker&gt; docker ps
+    CONTAINER ID   IMAGE           COMMAND   CREATED         STATUS         PORTS     NAMES
+    39e097b6bf4e   ubuntu:latest   <span class="hljs-string">"bash"</span>    2 minutes ago   Up 2 minutes             nifty_lichterman
+    PS C:\Temp\docker&gt;
+</div></code></pre>
+<p>This time you can see the container that is running and because you didn't specify a name Docker will create one for you.</p>
+<p><strong>Note:</strong> Now that you are running the container you are seeing the <code>container id</code> not the <code>image id</code>. These are two different Id's. You can also see the image that it came from, <code>ubuntu:latest</code> and see how long it has been running.</p>
+<p><strong>Note:</strong> If you are using a bash or Ubuntu terminal you can create a format string and add it to your <code>.bashrc</code>. This will allow you to see vertical output.</p>
+<p>In ~/.bashrc add.</p>
+<pre class="hljs"><code><div>    <span class="hljs-comment"># vertical output for - docker ps --format=$FORMAT</span>
+    <span class="hljs-built_in">export</span> FORMAT=<span class="hljs-string">"ID\t{{.ID}}\nNAME\t{{.Names}}\nIMAGE\t{{.Image}}\nPORTS\t{{.Ports}}\nCOMMAND\t{{.Command}}\nCREATED\t{{.CreatedAt}}\nSTATUS\t{{.Status}}\n"</span>
+</div></code></pre>
+<p>Now run.</p>
+<pre class="hljs"><code><div>    docker ps --format=<span class="hljs-variable">$FORMAT</span>
+</div></code></pre>
+<p>Returns.</p>
+<blockquote>
+<p>alanr@TIGER:/mnt/c/Temp/docker$ docker ps --format=$FORMAT<br>
+ID      39e097b6bf4e<br>
+NAME    nifty_lichterman<br>
+IMAGE   ubuntu:latest<br>
+PORTS<br>
+COMMAND &quot;bash&quot;<br>
+CREATED 2022-01-19 17:27:00 +1100 AEDT<br>
+STATUS  Up 23 minutes</p>
+</blockquote>
+<p>This is an easier format to look at.</p>
+<p>Now we have a running container. When we run a container we don't change the image. Any changes that we make will happen to the container and once you tear that container down you will lose the containers changes.</p>
+<p>Now we are going to look at something that is different from running a virtual machine or a Linux server. Inside our container we can create a directory and a file.</p>
+<blockquote>
+<p>root@35801cbffbc1:/# mkdir home/my-folder<br>
+root@35801cbffbc1:/# cd /home/my-folder/<br>
+root@35801cbffbc1:/home/my-folder# touch list.txt<br>
+root@35801cbffbc1:/home/my-folder# ls<br>
+list.txt<br>
+root@35801cbffbc1:/home/my-folder#</p>
+</blockquote>
+<p><strong>Note:</strong> If you spin up another container you won't see the directory or file you created in the previous container. This because the image doesn't contain that directory or file.</p>
+<p>If you exit the original container and start it up again the directory and file will have disappeared. They aren't part of the original image.</p>
+<p><img src="assets/images/docker/image-to-container.jpg" alt="Docker Image to Container" title="Docker Image to Container"></p>
+<h2 id="the-docker-flow---containers-to-images">The Docker flow - Containers to images</h2>
+<p>When you have a running container you can put files in it but it is only temporary and lasts until the container shuts down.</p>
+<p>What if you want to save those files?</p>
+<p>The next step in the Docker flow is the stopped container. When the process exits the container is still there so the file we created is still in the container. I can go back and find that container, it didn't get deleted. It is just that it is still in a stopped container.</p>
+<p>I can look at the most recently stopped container with the <code>ps</code> command to show my containers.</p>
+<pre class="hljs"><code><div>    docker ps -a
+</div></code></pre>
+<p><code>-a</code> is show all stopped containers.</p>
+<p>Shows all the containers that have run. At the top is the container we just closed.</p>
+<pre class="hljs"><code><div>PS C:\Temp\docker&gt; docker ps -a
+CONTAINER ID   IMAGE           COMMAND    CREATED           STATUS                      PORTS     NAMES
+39e097b6bf4e   ubuntu:latest   <span class="hljs-string">"bash"</span>     49 minutes ago    Exited (0) 7 seconds ago              nifty_lichterman
+...
+</div></code></pre>
+<pre class="hljs"><code><div>    docker ps -l
+</div></code></pre>
+<p>Will just show you the last container.</p>
+<blockquote>
+<p>alanr@TIGER:/mnt/c/Temp/docker$ docker ps -l --format=$FORMAT<br>
+ID      39e097b6bf4e<br>
+NAME    nifty_lichterman<br>
+IMAGE   ubuntu:latest<br>
+PORTS<br>
+COMMAND &quot;bash&quot;<br>
+CREATED 2022-01-19 17:27:00 +1100 AEDT<br>
+STATUS  Exited (0) 2 hours ago</p>
+</blockquote>
+<p><img src="assets/images/docker/stopped-container.jpg" alt="Docker Container flow" title="Docker Container flow"></p>
+<p>At the moment we have started from an image ran a container and installed our software on it and then stopped the container.</p>
+<p>The next step is the Docker <code>commit</code> command. That takes containers and makes a new image out of them. It doesn't delete the container but now we have a new image with the same content that was in the container.</p>
+<p><img src="assets/images/docker/container-commit.jpg" alt="Docker Container commit flow" title="Docker Container commit flow"></p>
+<p>So Docker run and Docker commit are complimentary to each other.</p>
+<p>Now we can make a new image.</p>
+<pre class="hljs"><code><div>    docker commit 39e097b6bf4e
+</div></code></pre>
+<p>This returns the new image id.</p>
+<blockquote>
+<p>docker commit 39e097b6bf4e<br>
+sha256:97f6058c77a32bcafcc53631fb73121bcf6aba6a7e16fbc4cf20a1f32f7cb33b</p>
+</blockquote>
+<p>We have made a new image with a large sha value which isn't convenient. Let's check the images.</p>
+<pre class="hljs"><code><div>    docker images
+</div></code></pre>
+<p>Returns.</p>
+<pre class="hljs"><code><div>    REPOSITORY                    TAG       IMAGE ID       CREATED         SIZE
+    &lt;none&gt;                        &lt;none&gt;    97f6058c77a3   2 minutes ago   72.8MB
+    ubuntu                        latest    d13c942271d6   12 days ago     72.8MB
+    busybox                       latest    beae173ccac6   2 weeks ago     1.24MB
+    mysql                         8.0       3218b38490ce   4 weeks ago     516MB
+    ...
+</div></code></pre>
+<p>Notice that the image that we created is at the top. The first 12 characters of the sha value identifies that this the image we created.</p>
+<p>Also note that there is no Repository or Tag.</p>
+<p>We can give this image a tag name.</p>
+<pre class="hljs"><code><div>    docker tag 97f6058c77a32bcafcc53631fb73121bcf6aba6a7e16fbc4cf20a1f32f7cb33b my-ubuntu
+</div></code></pre>
+<p>Check the images again and you see.</p>
+<pre class="hljs"><code><div>    REPOSITORY                    TAG       IMAGE ID       CREATED         SIZE
+    my-ubuntu                     latest    97f6058c77a3   9 minutes ago   72.8MB
+    ubuntu                        latest    d13c942271d6   12 days ago     72.8MB
+    ...
+</div></code></pre>
+<p>The repository is now named <code>my-ubuntu</code>.</p>
+<p>Run this image and see if your directory and file still exist.</p>
+<pre class="hljs"><code><div>    PS C:\Temp\docker&gt; docker run -it my-ubuntu
+    root@2718af6622db:/<span class="hljs-comment"># ls</span>
+    bin  boot  dev  etc  home  lib  lib32  lib64  libx32  media  mnt ...
+    root@2718af6622db:/<span class="hljs-comment"># cd home</span>
+    root@2718af6622db:/home<span class="hljs-comment"># ls</span>
+    alan
+    root@2718af6622db:/home<span class="hljs-comment"># cd alan</span>
+    root@2718af6622db:/home/alan<span class="hljs-comment"># ls</span>
+    list.txt
+</div></code></pre>
+<p>You can do both of these steps in the one command with <code>docker commit magical_blackwell my-newer-ubuntu</code>.</p>
+<pre class="hljs"><code><div>    PS C:\Temp\docker&gt; docker ps -l
+    CONTAINER ID   IMAGE       COMMAND   CREATED         STATUS                       PORTS     NAMES
+    2718af6622db   my-ubuntu   <span class="hljs-string">"bash"</span>    5 minutes ago   Exited (127) 3 minutes ago             magical_blackwell
+    PS C:\Temp\docker&gt; docker commit magical_blackwell my-newer-ubuntu
+    sha256:3c3dd820dc428075845a2ee816611ddb608a77473a686d36b39a232210b530d4
+    PS C:\Temp\docker&gt; docker images
+    REPOSITORY                    TAG       IMAGE ID       CREATED          SIZE
+    my-newer-ubuntu               latest    3c3dd820dc42   13 seconds ago   72.8MB
+    myubuntu                      latest    edd05ad27157   13 minutes ago   72.8MB
+    ...
+</div></code></pre>
+<p>This is a simpler process. It is much easier than doing a commit and then doing a tag but just remember that underneath the hood that it is doing both commands.</p>
+<h2 id="using-path-variablse-in-volume-mapping-in-containers">Using Path Variablse in Volume Mapping in containers</h2>
+<p>We want to use an Nginx image to serve web pages. We need to run Nginx with an exposed port.</p>
+<p>Nginx works on http or https and can be used as a load balancer spreading content across multiple web servers.</p>
+<p><strong>Note:</strong> I usually run Docker to download an image if it isn't on my PC. Another way to do this is.</p>
+<pre class="hljs"><code><div>    docker pull nginx
+</div></code></pre>
+<p>Once we <code>pull</code> an image we are able to use it as a container.</p>
+<p>The basic command is</p>
+<pre class="hljs"><code><div>    docker run nginx
+</div></code></pre>
+<p>This leaves the container running but you don't see any output. This means that we are connected to the STDIN and STDOUT of the <strong>nginx process</strong> of the container.</p>
+<p>Open another terminal and check that the container is running.</p>
+<pre class="hljs"><code><div>    docker ps -l
+</div></code></pre>
+<p>Where <code>-l</code> show the last container opened.</p>
+<pre class="hljs"><code><div>CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS     NAMES
+7310c22962df   nginx     <span class="hljs-string">"/docker-entrypoint.…"</span>   14 seconds ago   Up 13 seconds   80/tcp    kind_mirzakhani
+</div></code></pre>
+<p><strong>Note:</strong> that this container is running on Port 80. If you try to run port 80 in your browser you will get a 404 error. You are not able to connect to this web server.</p>
+<p>If you want to connect to the web server you have to use <strong>port mapping</strong>.</p>
+<p>Stop this container with a <code>CTRL-C</code>.</p>
+<h3 id="stopping-a-container">Stopping a container</h3>
+<p>If, for some reason you want to kill a container you can do this with the container Id or the name of the container.</p>
+<p>In the case above I could kill this with.</p>
+<pre class="hljs"><code><div>    docker stop 7310c22962df
+</div></code></pre>
+<p><strong>Note:</strong> you could have done <code>docker stop 73</code> and the container would have stopped.</p>
+<p>Or</p>
+<pre class="hljs"><code><div>    docker stop kind_mirzakhani
+</div></code></pre>
+<p>In this case it would be better to use.</p>
+<pre class="hljs"><code><div>    docker <span class="hljs-built_in">kill</span> 7310c22962df
+</div></code></pre>
+<p>We do this because the <code>sh</code> process doesn't react to the SIGTERM that is sent by Docker to the Docker container after <code>docker stop</code>. In 10 seconds <code>docker stop</code> reverts to the <code>docker kill</code> process.</p>
+<p>Do the following command to see if all containers have stopped.</p>
+<pre class="hljs"><code><div>    docker ps
+</div></code></pre>
+<h3 id="port-mapping">Port mapping</h3>
+<p>We need to open up an external port for the container so that we can run the web server.</p>
+<pre class="hljs"><code><div>    docker run -p 8080:80 nginx
+</div></code></pre>
+<p>This opens us up in the container leaving a cursor running in the terminal.</p>
+<p>Crack open a browser with <code>localhost:8080</code>.</p>
+<p><img src="assets/images/docker/localhost-web-server.jpg" alt="Docker container running a web server" title="Docker container running a web server"></p>
+<p>We have launched this container with option <code>-p</code>. Nginx is running on port 80 inside the container. On windows with Docker Desktop IP addresses of the containers are &quot;not reachable&quot;. <code>-p 8080:80</code> means open up the port 8080 on my computer and forward it to port 80 inside the container. The external port 8080 is mapped to the internal port 80 inside your container. You can use any external port but the internal port must be 80.</p>
+<p>If you look at the terminal you will see logs displayed through STDOUT from the container to the screen.</p>
+<p>The web page shows the default page that is coming from the container. We can create our own content to run with the nginx container.</p>
+<h3 id="nginx-container-with-custom-content">Nginx container with custom content</h3>
+<p>Once we stop the nginx container the port 8080 is no longer exposed to the browser.</p>
+<p>To run our own content within the nginx container we have to create a new web project.</p>
+<p>Navigate into the *<em>home/alanr/Documents</em> folder and create a new folder named <strong>website</strong>.</p>
+<p>Create a new index.html file and add a favicon.ico file to the folder.</p>
+<p>To show this content we will have to do port mapping and volume mapping.</p>
+<pre class="hljs"><code><div>    docker run -p 8080:80 -v /home/alanr/Documents/website:/usr/share/nginx/html nginx
+</div></code></pre>
+<p>In this command we are exposing the external port <code>-p 8080:80</code> and mapping a local volume to the default content folder in nginx.</p>
+<p><code>-v /home/alanr/Documents/website:/usr/share/nginx/html</code> means map the local content (<code>/home/alanr/Documents/website</code>) to the default content folder in nginx (<code>/usr/share/nginx/html</code>).</p>
+<p>In the web browser.</p>
+<p><img src="assets/images/docker/my-content.jpg" alt="Docker container running my content" title="Docker container running my content"></p>
+<p><strong>Note:</strong> The favicon has been installed correctly. You can see it in the tab.</p>
+<h2 id="volume-mapping-in-the-docker-containers">Volume Mapping in the Docker Containers</h2>
+<p>We have a hard coded local path in our volume. This can cause problems in containers so we are going to replace that with the current patch as a variable.</p>
+<pre class="hljs"><code><div>    docker run -p 8080:80 -v <span class="hljs-variable">$PWD</span>:/usr/share/nginx/html nginx
+</div></code></pre>
+<p><strong>$PWD</strong> is the current working folder where our website resides.</p>
+<p><strong>Note:</strong> We can use the PC's IP to server our web pages. On Windows use <strong>ipconfig</strong> to get your IP address. In my case, <em>http://192.168.1.105:8080/</em>.</p>
+<h2 id="docker-containers-management-ubuntu-nginx">Docker Containers Management (Ubuntu, Nginx)</h2>
+<h3 id="running-containers-in-the-background">Running containers in the background</h3>
+<p>Usually containers with long running processes like <strong>nginx</strong>, <strong>mongodb</strong> or <strong>redis</strong> are started and are running in the background.</p>
+<p>If we run our <strong>hello-world</strong> image again it prints out a message and once its process has finished it shuts down the container.</p>
+<p>When we run <strong>alpine</strong>.</p>
+<pre class="hljs"><code><div>    docker run alpine
+</div></code></pre>
+<p>The process runs and once again when the process terminates it shuts down the container.</p>
+<p>Check the history for the alpine image.</p>
+<pre class="hljs"><code><div>    docker <span class="hljs-built_in">history</span> alpine
+</div></code></pre>
+<p>Returns.</p>
+<pre class="hljs"><code><div>IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
+c059bfaa849c   8 weeks ago   /bin/sh -c <span class="hljs-comment">#(nop)  CMD ["/bin/sh"]              0B</span>
+&lt;missing&gt;      8 weeks ago   /bin/sh -c <span class="hljs-comment">#(nop) ADD file:9233f6f2237d79659…   5.59MB</span>
+</div></code></pre>
+<p>This shows the command that has run. In one of those process's it ran the shell, <code>/bin/sh</code>. This process opened up a shell and waited for STDIN and STDOUT messages to run.</p>
+<p>When we ran <code>docker run alpine</code> we didn't allow it to run with STDIN and STDOUT. We can do this with the flags <code>-it</code>.</p>
+<pre class="hljs"><code><div>    docker run -ti alpine
+</div></code></pre>
+<p>In this case you will be presented with a cursor in the running process that is waiting for STDIN or STDOUT. If you do a <code>docker ps</code> in another terminal window the command will show you that you are running in a shell (/bin/sh)</p>
+
+</body>
+</html>
