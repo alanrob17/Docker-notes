@@ -1,4 +1,4 @@
-# Tim Corey - Introduction to Docker
+# Introduction to Docker
 
 ## Create an image
 

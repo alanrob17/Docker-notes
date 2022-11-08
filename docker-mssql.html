@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>docker-mssql.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="using-docker-with-sql-server">Using Docker with SQL Server</h1>
+<p>Source code: <code>Projects\docker-recorddb-mssql</code>.</p>
+<h2 id="install-the-sql-server-image">Install the SQL Server image</h2>
+<pre class="hljs"><code><div>docker run <span class="hljs-literal">-e</span> <span class="hljs-string">"ACCEPT_EULA=Y"</span> <span class="hljs-literal">-e</span> <span class="hljs-string">"MSSQL_SA_PASSWORD=Pwd12345!"</span> <span class="hljs-literal">-p</span> <span class="hljs-number">11433</span>:<span class="hljs-number">1433</span> <span class="hljs-literal">-d</span> mcr.microsoft.com/mssql/server:<span class="hljs-number">2019</span><span class="hljs-literal">-latest</span>
+</div></code></pre>
+<p><strong>Note:</strong> every time you run this image you have to add the EULA statement or it doesn't work.</p>
+<p>This installs the latest version of the image that we can use.</p>
+<h3 id="building-the-image">Building the image</h3>
+<pre class="hljs"><code><div>    docker build <span class="hljs-literal">-t</span> record<span class="hljs-literal">-db</span> .
+</div></code></pre>
+<h3 id="running-the-image">Running the image</h3>
+<pre class="hljs"><code><div>    docker run <span class="hljs-literal">-p</span> <span class="hljs-number">11433</span>:<span class="hljs-number">1433</span> <span class="hljs-literal">-d</span> record<span class="hljs-literal">-db</span>
+</div></code></pre>
+<p>We have to give the image a port value. SQL Server is installed on my system and uses the port number <code>1433</code> so we can't use that. In our case we will use port <code>11433</code> instead. <code>11433</code> is the port we use to connect and <code>1433</code> is the port inside the container.</p>
+<p>Once this is up and running we can open up SQL Server Management Studio (SSMS) and use the following to log in.</p>
+<p><strong>Server:</strong> localhost, 11433<br>
+<strong>Username:</strong> sa<br>
+<strong>Password:</strong> Pwd12345!</p>
+<p><strong>Note:</strong> localhost uses a comma in this situation.</p>
+<p><img src="assets/images/docker/login.jpg" alt="SQL Server login" title="SQL Server login"></p>
+<p>Once you have logged in you will see your SQL server.</p>
+<p><img src="assets/images/docker/database-server.jpg" alt="SQL Server running" title="SQL Server running"></p>
+<p><strong>Note:</strong> you can create a database but each time you shut the container you will lose your changes because the image is read-only.</p>
+<h2 id="adding-a-database-into-your-image">Adding a database into your image</h2>
+<p>We will make a new image from the original SQL Server image that contains a database. We can use this to test and send out a database to other users in our team for testing.</p>
+<p>In my docker folder I have 3 files.</p>
+<ul>
+<li>dockerfile</li>
+<li>RecordDB_BU.BAK</li>
+<li>restore-backup.sql</li>
+</ul>
+<h3 id="dockerfile">dockerfile</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">FROM</span> mcr.microsoft.com/mssql/server:<span class="hljs-number">2019</span>-latest AS build
+<span class="hljs-keyword">ENV</span> MSSQL_PID=Developer
+<span class="hljs-keyword">ENV</span> ACCEPT_EULA=Y
+<span class="hljs-keyword">ENV</span> SA_PASSWORD=Pwd12345!
+
+<span class="hljs-keyword">WORKDIR</span><span class="bash"> /tmp</span>
+<span class="hljs-keyword">COPY</span><span class="bash"> RecordDB_BU.BAK .</span>
+<span class="hljs-keyword">COPY</span><span class="bash"> restore-backup.sql .</span>
+
+<span class="hljs-keyword">RUN</span><span class="bash"> /opt/mssql/bin/sqlservr --accept-eula &amp; sleep 30 \
+    &amp;&amp; /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P <span class="hljs-string">"Pwd12345!"</span> -i /tmp/restore-backup.sql \
+    &amp;&amp; pkill sqlservr</span>
+
+<span class="hljs-keyword">FROM</span> mcr.microsoft.com/mssql/server:<span class="hljs-number">2019</span>-latest AS release
+
+<span class="hljs-keyword">ENV</span> ACCEPT_EULA=Y
+
+<span class="hljs-keyword">COPY</span><span class="bash"> --from=build /var/opt/mssql/data /var/opt/mssql/data</span>
+</div></code></pre>
+<p><strong>FROM</strong> is the image we will be using.</p>
+<p>We have to add some <strong>ENV</strong> variables to for the image including the <code>sa</code> password.</p>
+<p><strong>WORKDIR</strong> is the current working directory that stores the file we require.</p>
+<p><strong>/opt/mssql/bin/sqlservr</strong> is where you run SQL server in the Linux image.</p>
+<p><strong>Note:</strong> SQL Server here is spelled <strong>sqlservr</strong> using 8 characters for Linux.</p>
+<p><strong>/opt/mssql-tools/bin/</strong> is where we run a SQL script (restore-backup.sql) that restores a database backup.</p>
+<p>We are going to download the <strong>build</strong> image and run the script to install The RecordDB database in the <strong>release</strong> image.</p>
+<h3 id="recorddbbubak">RecordDB_BU.BAK</h3>
+<p>This is the backup file that we will restore using the following script.</p>
+<h3 id="restore-backupsql">restore-backup.sql</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">RESTORE</span> <span class="hljs-keyword">DATABASE</span> [RecordDB] <span class="hljs-keyword">FROM</span> DISK = <span class="hljs-string">'/tmp/RecordDB_BU.BAK'</span>
+<span class="hljs-keyword">WITH</span> <span class="hljs-keyword">FILE</span> = <span class="hljs-number">1</span>,
+<span class="hljs-keyword">MOVE</span> <span class="hljs-string">'RecordDB'</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">'/var/opt/mssql/data/RecordDB.mdf'</span>,
+<span class="hljs-keyword">MOVE</span> <span class="hljs-string">'RecordDB_log'</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">'/var/opt/mssql/data/RecordDB.ldf'</span>,
+NOUNLOAD, <span class="hljs-keyword">REPLACE</span>, STATS = <span class="hljs-number">5</span>
+<span class="hljs-keyword">GO</span>
+</div></code></pre>
+<p><strong>Note:</strong> every time you update this database you can delete the current release image and create a new image.</p>
+<p>The database and log file are stored in the Linux image, in <code>/var/opt/mssql/data/</code>.</p>
+<h3 id="build-the-new-image">Build the new image</h3>
+<pre class="hljs"><code><div>    docker build <span class="hljs-literal">-t</span> record<span class="hljs-literal">-db</span> .
+</div></code></pre>
+<h3 id="run-the-new-image">Run the new image</h3>
+<pre class="hljs"><code><div>    docker run <span class="hljs-literal">-p</span> <span class="hljs-number">11433</span>:<span class="hljs-number">1433</span> <span class="hljs-literal">-d</span> record<span class="hljs-literal">-db</span>
+</div></code></pre>
+<p>Log in to your SQL Server connection again and this time you will see your database.</p>
+<p><img src="assets/images/docker/server-with-database.jpg" alt="SQL Server with your database" title="SQL Server with your database"></p>
+<p>Now you have a totally new image and you don't have to accept the EULA or add a password.</p>
+<p>This database is used for testing purposes and any changes will be saved only in the container (not the image).</p>
+<p>In my case I connected the database to my RecordDB website and I could test the database in the Docker container.</p>
+<h2 id="sanitising-data-in-your-database">Sanitising data in your database</h2>
+<p>Just imagine that you are sending this image to other members of your team and it contains sensitive data like emails, phone numbers, password hashes, etc.</p>
+<p>We can run a sanitising script in our dockerfile.</p>
+<p>To show an example of this we will create an image of the AdventureWorksLT database.</p>
+<h3 id="sanitise-backupsql">sanitise-backup.sql</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">RESTORE</span> <span class="hljs-keyword">DATABASE</span> [AdventureWorksLT] <span class="hljs-keyword">FROM</span> DISK = <span class="hljs-string">'/tmp/AdventureWorksLT2019.bak'</span>
+<span class="hljs-keyword">WITH</span> <span class="hljs-keyword">FILE</span> = <span class="hljs-number">1</span>,
+<span class="hljs-keyword">MOVE</span> <span class="hljs-string">'AdventureWorksLT2012_Data'</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">'/var/opt/mssql/data/AdventureWorksLT.mdf'</span>,
+<span class="hljs-keyword">MOVE</span> <span class="hljs-string">'AdventureWorksLT2012_log'</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">'/var/opt/mssql/data/AdventureWorksLT.ldf'</span>,
+NOUNLOAD, <span class="hljs-keyword">REPLACE</span>, STATS = <span class="hljs-number">5</span>
+<span class="hljs-keyword">GO</span>
+<span class="hljs-keyword">USE</span> AdventureWorksLT;
+GO
+<span class="hljs-keyword">UPDATE</span> SalesLT.Customer
+    <span class="hljs-keyword">SET</span> EmailAddress = FirstName + <span class="hljs-string">'@alanrobson.co'</span>,
+    LastName = <span class="hljs-string">'Customer'</span>,
+    Phone = <span class="hljs-keyword">FORMAT</span>(<span class="hljs-keyword">CAST</span>(<span class="hljs-keyword">LEFT</span>(<span class="hljs-keyword">CAST</span>(<span class="hljs-keyword">ABS</span>(<span class="hljs-keyword">CAST</span>(<span class="hljs-keyword">CAST</span>(NEWID() <span class="hljs-keyword">AS</span> <span class="hljs-built_in">BINARY</span>(<span class="hljs-number">10</span>)) <span class="hljs-keyword">AS</span> <span class="hljs-built_in">INT</span>)) <span class="hljs-keyword">AS</span> <span class="hljs-built_in">VARCHAR</span>(<span class="hljs-keyword">MAX</span>)) + <span class="hljs-string">'0000000000'</span>, <span class="hljs-number">10</span>) <span class="hljs-keyword">AS</span> <span class="hljs-built_in">BIGINT</span>), <span class="hljs-string">'###-###-####'</span>),
+    PasswordHash = <span class="hljs-string">''</span>,
+    PasswordSalt = <span class="hljs-string">''</span>;
+</div></code></pre>
+<p>Note that we are still restoring our database the same as our previous example. We add the <code>USE</code> statement after the restore and the rest of the code is our <code>UPDATE</code> script to update the Customer table.</p>
+<h3 id="dockerfile">dockerfile</h3>
+<pre class="hljs"><code><div><span class="hljs-keyword">FROM</span> mcr.microsoft.com/mssql/server:<span class="hljs-number">2019</span>-latest AS build
+<span class="hljs-keyword">ENV</span> MSSQL_PID=Developer
+<span class="hljs-keyword">ENV</span> ACCEPT_EULA=Y
+<span class="hljs-keyword">ENV</span> SA_PASSWORD=Pwd12345!
+
+<span class="hljs-keyword">WORKDIR</span><span class="bash"> /tmp</span>
+<span class="hljs-keyword">COPY</span><span class="bash"> AdventureWorksLT2019.bak .</span>
+<span class="hljs-keyword">COPY</span><span class="bash"> sanitise-backup.sql .</span>
+
+
+<span class="hljs-keyword">RUN</span><span class="bash"> /opt/mssql/bin/sqlservr --accept-eula &amp; sleep 10 \
+    &amp;&amp; /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P <span class="hljs-string">"Pwd12345!"</span> -i /tmp/sanitise-backup.sql \
+    &amp;&amp; pkill sqlservr</span>
+
+<span class="hljs-keyword">FROM</span> mcr.microsoft.com/mssql/server:<span class="hljs-number">2019</span>-latest AS release
+
+<span class="hljs-keyword">ENV</span> ACCEPT_EULA=Y
+
+<span class="hljs-keyword">COPY</span><span class="bash"> --from=build /var/opt/mssql/data /var/opt/mssql/data</span>
+</div></code></pre>
+<p>I have created a new folder with these files and the <code>AdventureWorksLT2019.bak</code> database backup.</p>
+<h3 id="build-the-new-image">Build the new image</h3>
+<p><strong>Note:</strong>  before you run this make sure you don't have the RecordDB image running because the port numbers will conflict.</p>
+<pre class="hljs"><code><div>    docker build <span class="hljs-literal">-t</span> adventureworks .
+</div></code></pre>
+<h3 id="run-the-new-image">Run the new image</h3>
+<pre class="hljs"><code><div>    docker run <span class="hljs-literal">-p</span> <span class="hljs-number">11433</span>:<span class="hljs-number">1433</span> <span class="hljs-literal">-d</span> adventureworks
+</div></code></pre>
+<p>In SQL Server open the Customer table. The following image shows the fields that have been sanitised.</p>
+<p><img src="assets/images/docker/sanitised-data.jpg" alt="Sanitised Customer table" title="Sanitised Customer table"></p>
+<h3 id="removing-unnamed-images">Removing unnamed images</h3>
+<p>You can remove unnamed images. These are temporary images and can be removed.</p>
+<pre class="hljs"><code><div>    docker system prune <span class="hljs-operator">-f</span>
+</div></code></pre>
+
+</body>
+</html>
