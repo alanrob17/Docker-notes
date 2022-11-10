@@ -377,6 +377,37 @@ code {
 <p>I can run a Bash shell in Powershell using this image.</p>
 <pre class="hljs"><code><div>    docker run -it ubuntu bash
 </div></code></pre>
+<p>Where <code>-it</code> is run a terminal interface. We want to run the <code>ubuntu:latest</code> image and we want to run the <code>bash</code> shell in the container.</p>
+<h3 id="dockergetting-started">docker/getting-started</h3>
+<p>These are the Docker getting started notes, a great introduction on how to use Docker.</p>
+<pre class="hljs"><code><div>    docker run -d -p 8080:80 docker/getting-started
+</div></code></pre>
+<h3 id="alpine">alpine</h3>
+<p>Alpine is a minimal Linux distribution that take about 5 Mb of disk space. It contains Busybox, an application that contains the core Unix utilities in a single binary. These include applications such as <code>vi</code>, a basic text editor and touch to allow you to create a text file.</p>
+<pre class="hljs"><code><div>    docker run -it alpine
+</div></code></pre>
+<p>You can install software into this container.</p>
+<pre class="hljs"><code><div>    apk add nano
+</div></code></pre>
+<p>or you can use a <code>dockerfile</code> to install software into your image (\Sandbox\docker-alpine-git).</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">FROM</span> alpine
+
+    <span class="hljs-keyword">RUN</span><span class="bash"> apk update</span>
+
+    <span class="hljs-keyword">RUN</span><span class="bash"> apk add git </span>
+
+    <span class="hljs-keyword">RUN</span><span class="bash"> git config --global user.email <span class="hljs-string">"alanr@live.com.au"</span></span>
+    <span class="hljs-keyword">RUN</span><span class="bash"> git config --global user.name <span class="hljs-string">"Alan Robson"</span></span>
+    <span class="hljs-keyword">RUN</span><span class="bash"> git config --global init.defaultBranch main</span>
+
+    <span class="hljs-keyword">RUN</span><span class="bash"> apk add nano</span>
+</div></code></pre>
+<p>Build</p>
+<pre class="hljs"><code><div>    docker build -t alpine-git .
+</div></code></pre>
+<p>Run</p>
+<pre class="hljs"><code><div>     docker run -it alpine-git
+</div></code></pre>
 <h2 id="sql-server-images">SQL Server images</h2>
 <p>I have a basic SQL Server image that I will use for all other SQL Server images. This is just a bare bones SQL Server with no databases. You can add a database into the container but it will only be saved in that container, not the image.</p>
 <pre class="hljs"><code><div>docker run -e <span class="hljs-string">"ACCEPT_EULA=Y"</span> -e <span class="hljs-string">"MSSQL_SA_PASSWORD=Pwd12345!"</span> -p 11433:1433 -d mcr.microsoft.com/mssql/server:2019-latest

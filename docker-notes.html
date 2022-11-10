@@ -446,7 +446,7 @@ Backing Filesystem: extfs</p>
 <p>Now that you have an image what do you do with it? You can run the Docker image and turn it into a running container with a process in it that is doing something. Let's look at running an image to make a container.</p>
 <pre class="hljs"><code><div>    docker run -it ubuntu:latest bash
 </div></code></pre>
-<p>where <code>-it</code> is run a terminal interface. We want to run the <code>ubuntu:latest</code> image and we want to run the <code>bash</code> shell in the container.</p>
+<p>Where <code>-it</code> is run a terminal interface. We want to run the <code>ubuntu:latest</code> image and we want to run the <code>bash</code> shell in the container.</p>
 <p>We end up with the bash shell running a root.</p>
 <blockquote>
 <p>PS C:\Temp\docker&gt; docker run -it ubuntu:latest bash<br>
@@ -664,7 +664,7 @@ sha256:97f6058c77a32bcafcc53631fb73121bcf6aba6a7e16fbc4cf20a1f32f7cb33b</p>
 <pre class="hljs"><code><div>    docker run -p 8080:80 -v <span class="hljs-variable">$PWD</span>:/usr/share/nginx/html nginx
 </div></code></pre>
 <p><strong>$PWD</strong> is the current working folder where our website resides.</p>
-<p><strong>Note:</strong> We can use the PC's IP to server our web pages. On Windows use <strong>ipconfig</strong> to get your IP address. In my case, <em>http://192.168.1.105:8080/</em>.</p>
+<p><strong>Note:</strong> We can use the PC's IP to server our web pages. On Windows use <strong>ipconfig</strong> to get your IP address. In my case, <em><a href="http://192.168.1.105:8080/">http://192.168.1.105:8080/</a></em>.</p>
 <h2 id="docker-containers-management-ubuntu-nginx">Docker Containers Management (Ubuntu, Nginx)</h2>
 <h3 id="running-containers-in-the-background">Running containers in the background</h3>
 <p>Usually containers with long running processes like <strong>nginx</strong>, <strong>mongodb</strong> or <strong>redis</strong> are started and are running in the background.</p>

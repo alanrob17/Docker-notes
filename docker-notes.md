@@ -125,7 +125,7 @@ Now that you have an image what do you do with it? You can run the Docker image 
     docker run -it ubuntu:latest bash
 ```
 
-where ``-it`` is run a terminal interface. We want to run the ``ubuntu:latest`` image and we want to run the ``bash`` shell in the container.
+Where ``-it`` is run a terminal interface. We want to run the ``ubuntu:latest`` image and we want to run the ``bash`` shell in the container.
 
 We end up with the bash shell running a root.
 
@@ -216,7 +216,6 @@ Now we are going to look at something that is different from running a virtual m
 If you exit the original container and start it up again the directory and file will have disappeared. They aren't part of the original image.
 
 ![Docker Image to Container](assets/images/docker/image-to-container.jpg "Docker Image to Container")
-
 
 ## The Docker flow - Containers to images
 
@@ -477,7 +476,7 @@ We have a hard coded local path in our volume. This can cause problems in contai
 
 **$PWD** is the current working folder where our website resides.
 
-**Note:** We can use the PC's IP to server our web pages. On Windows use **ipconfig** to get your IP address. In my case, *http://192.168.1.105:8080/*.
+**Note:** We can use the PC's IP to server our web pages. On Windows use **ipconfig** to get your IP address. In my case, *<http://192.168.1.105:8080/>*.
 
 ## Docker Containers Management (Ubuntu, Nginx)
 

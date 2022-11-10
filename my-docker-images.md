@@ -22,6 +22,58 @@ I can run a Bash shell in Powershell using this image.
     docker run -it ubuntu bash
 ```
 
+Where ``-it`` is run a terminal interface. We want to run the ``ubuntu:latest`` image and we want to run the ``bash`` shell in the container.
+
+### docker/getting-started
+
+These are the Docker getting started notes, a great introduction on how to use Docker.
+
+```bash
+    docker run -d -p 8080:80 docker/getting-started
+```
+
+### alpine
+
+Alpine is a minimal Linux distribution that take about 5 Mb of disk space. It contains Busybox, an application that contains the core Unix utilities in a single binary. These include applications such as ``vi``, a basic text editor and touch to allow you to create a text file.
+
+```bash
+    docker run -it alpine
+```
+
+You can install software into this container.
+
+```bash
+    apk add nano
+```
+
+or you can use a ``dockerfile`` to install software into your image (\Sandbox\docker-alpine-git).
+
+```dockerfile
+    FROM alpine
+
+    RUN apk update
+
+    RUN apk add git 
+
+    RUN git config --global user.email "alanr@live.com.au"
+    RUN git config --global user.name "Alan Robson"
+    RUN git config --global init.defaultBranch main
+
+    RUN apk add nano
+```
+
+Build
+
+```bash
+    docker build -t alpine-git .
+```
+
+Run 
+
+```bash
+     docker run -it alpine-git
+```
+
 ## SQL Server images
 
 I have a basic SQL Server image that I will use for all other SQL Server images. This is just a bare bones SQL Server with no databases. You can add a database into the container but it will only be saved in that container, not the image.
