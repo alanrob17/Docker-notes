@@ -74,6 +74,28 @@ Run
      docker run -it alpine-git
 ```
 
+### Create a web server
+
+Folder: Sandbox\docker\alpine-website
+
+```dockerfile
+FROM httpd:alpine
+
+COPY ./html/ /usr/local/apache2/htdocs
+```
+
+Build
+
+```bash
+     docker build -t alpine-website:1.0.0 .
+```
+
+Run
+
+```bash
+    docker run --name alpineweb -p 8000:80 alpine-website:1.0.0     
+```
+
 ## SQL Server images
 
 I have a basic SQL Server image that I will use for all other SQL Server images. This is just a bare bones SQL Server with no databases. You can add a database into the container but it will only be saved in that container, not the image.
