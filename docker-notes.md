@@ -347,7 +347,7 @@ You can do both of these steps in the one command with ``docker commit magical_b
 
 This is a simpler process. It is much easier than doing a commit and then doing a tag but just remember that underneath the hood that it is doing both commands.
 
-## Using Path Variablse in Volume Mapping in containers
+## Using Path Variables in Volume Mapping in containers
 
 We want to use an Nginx image to serve web pages. We need to run Nginx with an exposed port.
 
@@ -478,7 +478,7 @@ We have a hard coded local path in our volume. This can cause problems in contai
 
 **Note:** We can use the PC's IP to server our web pages. On Windows use **ipconfig** to get your IP address. In my case, *<http://192.168.1.105:8080/>*.
 
-## Docker Containers Management (Ubuntu, Nginx)
+## Docker Container Management (Ubuntu, Nginx)
 
 ### Running containers in the background
 
@@ -517,3 +517,185 @@ When we ran ``docker run alpine`` we didn't allow it to run with STDIN and STDOU
 ```
 
 In this case you will be presented with a cursor in the running process that is waiting for STDIN or STDOUT. If you do a ``docker ps`` in another terminal window the command will show you that you are running in a shell (/bin/sh)
+
+## Deleting containers
+
+Show all containers.
+
+```bash
+    docker ps -a
+```
+
+Show running containers.
+
+```bash
+    docker ps
+```
+
+Show id's of all containers
+
+```bash
+    docker ps -a -q
+```
+
+> 5f079a4efe6a
+> fc580faebd11
+> bec60e52a172
+> ...
+
+Remove a container.
+
+```bash
+    docker rm 5f0
+```
+
+I have approximately 20 containers at present and to remove each one would be tedious. Powershell can easily delete all of my containers in one command.
+
+```powershell
+    docker rm $(docker ps -a -q)
+```
+
+Will bring back a list of all the container id's that have been removed.
+
+**Note:** be careful with this command as it deletes everything.
+
+## Deleting images
+
+Remove an image.
+
+```bash
+    docker rmi f3d
+```
+
+Will delete the image with that Image Id.
+
+Once again there is a Powershell command to delete all images.
+
+```powershell
+    docker rmi $(docker images -q)
+```
+
+**Note:** we could easily delete all images and recreate them as required. This would require downloading the images from Docker Hub again.
+
+## Dockerfile
+
+Docker can build images automatically by reading the instructions from a ``Dockerfile``. A ``Dockerfile`` is a text document that contains all the commands a user could call on the command line to assemble an image. 
+
+### Format
+
+Here is the format of the Dockerfile:
+
+```bash
+    # Comment
+    INSTRUCTION arguments
+```
+
+### FROM
+
+Docker runs instructions in a Dockerfile in order. A Dockerfile must begin with a ``FROM`` instruction. This may be after parser directives, comments, and globally scoped ARGs. The ``FROM`` instruction specifies the Parent Image from which you are building. FROM may only be preceded by one or more ARG instructions, which declare arguments that are used in FROM lines in the Dockerfile.
+
+E.g.
+
+```dockerfile
+    FROM httpd:alpine
+```
+
+```dockerfile
+    FROM httpd:alpine
+```
+
+Where ``httpd`` is the image. We want a specific **tagged** version named ``alpine``.
+
+Alpine is the base Alpine image but there are a number of other versions of Alpine we could use depending on what we want to do.
+
+You could also name this image.
+
+E.g.
+
+```dockerfile
+    FROM httpd:alpine AS base
+```
+
+You could have multiple ``FROM`` statements in your Dockerfile.
+
+In most Dockerfile's FROM is the first command but you can add ``ARG``'s  before a FROM.
+
+E.g.
+
+```dockerfile
+    ARG VERSION=latest
+    FROM httpd:alpine AS base
+```
+
+Note that the ``ARG`` command can only be used before a FROM command. It can't be used after the FROM command has been run.
+
+There is an exception to this.
+
+```dockerfile
+    ARG VERSION=latest
+    FROM busybox:$VERSION
+
+    ARG VERSION
+    RUN Echo $VERSION > image_version
+```
+
+### COPY
+
+Format
+
+> COPY chown source destination
+
+Where you can set permissions for the folder with ``chown``.
+
+``source`` is the source destination. This is the local directory. If you have files in a HTML folder that you want to copy to the image destination use ``./html/``. Where ``.`` is the current directory with the Dockerfile and ``html`` is the directory in the current directory.
+
+``destination`` is where you want the files loaded to which is usually ``/usr/local/apache2/htdocs`` in a linux web server.
+
+We can extend this by using wildcards in the ``source``.
+
+E.g.
+
+```dockerfile
+    # use a httpd web server with a minimal alpine Linux system
+    FROM httpd:alpine
+
+    COPY hom* /usr/local/apache2/htdocs
+```
+
+This adds all files starting with **hom**.
+
+The ``destination`` is a relative or absolute path to ``WORKDIR``, where the ``source`` files will be copied into the ``destination`` container.
+
+**Note:** lines with a ``#`` is a comment line.
+
+#### from flag
+
+Optionally ``COPY`` accepts a flag ``--from``=<name> that can be used to set the source location to a previous build stage (created with FROM .. AS <name>) that will be used instead of a build context sent by the user. In case a build stage with a specified name can't be found an image with the same name is attempted to be used instead.
+
+```dockerfile
+    FROM httpd:alpine AS base
+    COPY ./html/ /usr/local/apache2/htdocs
+
+    FROM httpd AS final
+    COPY --from=base /usr/local/apache2/htdocs/ /usr/local/apache2/htdocs/app/
+```
+
+This is creating an image from two different images (httpd:alpine and httpd). The files from ``base`` in **htdocs** are going to be copied to ``/usr/local/apache2/htdocs/app/``.
+
+Build
+
+```bash
+    docker build -t alpineweb .
+```
+
+Run.
+
+```bash
+    docker run --name alpine -p 8000:80 alpineweb
+```
+
+Now when we can open the browser to *<http://127.0.0.1:800/app>* we will see the index.html file we created.
+
+Why would you do this? This would come in handy for an ASP.Net core application. The first build we do has the ``.csproj`` and ``bin`` folder and the next build could remove these files and the source code from our final release build.
+
+An important point to note is that there are certain commands that create layers. ``COPY`` is one of these. In our first copy we create an images and our second copy creates another image. The ``RUN`` and ``ADD`` commands also build images.

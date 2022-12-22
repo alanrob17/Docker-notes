@@ -599,7 +599,7 @@ sha256:97f6058c77a32bcafcc53631fb73121bcf6aba6a7e16fbc4cf20a1f32f7cb33b</p>
     ...
 </div></code></pre>
 <p>This is a simpler process. It is much easier than doing a commit and then doing a tag but just remember that underneath the hood that it is doing both commands.</p>
-<h2 id="using-path-variablse-in-volume-mapping-in-containers">Using Path Variablse in Volume Mapping in containers</h2>
+<h2 id="using-path-variables-in-volume-mapping-in-containers">Using Path Variables in Volume Mapping in containers</h2>
 <p>We want to use an Nginx image to serve web pages. We need to run Nginx with an exposed port.</p>
 <p>Nginx works on http or https and can be used as a load balancer spreading content across multiple web servers.</p>
 <p><strong>Note:</strong> I usually run Docker to download an image if it isn't on my PC. Another way to do this is.</p>
@@ -665,7 +665,7 @@ sha256:97f6058c77a32bcafcc53631fb73121bcf6aba6a7e16fbc4cf20a1f32f7cb33b</p>
 </div></code></pre>
 <p><strong>$PWD</strong> is the current working folder where our website resides.</p>
 <p><strong>Note:</strong> We can use the PC's IP to server our web pages. On Windows use <strong>ipconfig</strong> to get your IP address. In my case, <em><a href="http://192.168.1.105:8080/">http://192.168.1.105:8080/</a></em>.</p>
-<h2 id="docker-containers-management-ubuntu-nginx">Docker Containers Management (Ubuntu, Nginx)</h2>
+<h2 id="docker-container-management-ubuntu-nginx">Docker Container Management (Ubuntu, Nginx)</h2>
 <h3 id="running-containers-in-the-background">Running containers in the background</h3>
 <p>Usually containers with long running processes like <strong>nginx</strong>, <strong>mongodb</strong> or <strong>redis</strong> are started and are running in the background.</p>
 <p>If we run our <strong>hello-world</strong> image again it prints out a message and once its process has finished it shuts down the container.</p>
@@ -686,6 +686,109 @@ c059bfaa849c   8 weeks ago   /bin/sh -c <span class="hljs-comment">#(nop)  CMD [
 <pre class="hljs"><code><div>    docker run -ti alpine
 </div></code></pre>
 <p>In this case you will be presented with a cursor in the running process that is waiting for STDIN or STDOUT. If you do a <code>docker ps</code> in another terminal window the command will show you that you are running in a shell (/bin/sh)</p>
+<h2 id="deleting-containers">Deleting containers</h2>
+<p>Show all containers.</p>
+<pre class="hljs"><code><div>    docker ps -a
+</div></code></pre>
+<p>Show running containers.</p>
+<pre class="hljs"><code><div>    docker ps
+</div></code></pre>
+<p>Show id's of all containers</p>
+<pre class="hljs"><code><div>    docker ps -a -q
+</div></code></pre>
+<blockquote>
+<p>5f079a4efe6a<br>
+fc580faebd11<br>
+bec60e52a172<br>
+...</p>
+</blockquote>
+<p>Remove a container.</p>
+<pre class="hljs"><code><div>    docker rm 5f0
+</div></code></pre>
+<p>I have approximately 20 containers at present and to remove each one would be tedious. Powershell can easily delete all of my containers in one command.</p>
+<pre class="hljs"><code><div>    docker rm <span class="hljs-variable">$</span>(docker ps <span class="hljs-literal">-a</span> <span class="hljs-literal">-q</span>)
+</div></code></pre>
+<p>Will bring back a list of all the container id's that have been removed.</p>
+<p><strong>Note:</strong> be careful with this command as it deletes everything.</p>
+<h2 id="deleting-images">Deleting images</h2>
+<p>Remove an image.</p>
+<pre class="hljs"><code><div>    docker rmi f3d
+</div></code></pre>
+<p>Will delete the image with that Image Id.</p>
+<p>Once again there is a Powershell command to delete all images.</p>
+<pre class="hljs"><code><div>    docker rmi <span class="hljs-variable">$</span>(docker images <span class="hljs-literal">-q</span>)
+</div></code></pre>
+<p><strong>Note:</strong> we could easily delete all images and recreate them as required. This would require downloading the images from Docker Hub again.</p>
+<h2 id="dockerfile">Dockerfile</h2>
+<p>Docker can build images automatically by reading the instructions from a <code>Dockerfile</code>. A <code>Dockerfile</code> is a text document that contains all the commands a user could call on the command line to assemble an image.</p>
+<h3 id="format">Format</h3>
+<p>Here is the format of the Dockerfile:</p>
+<pre class="hljs"><code><div>    <span class="hljs-comment"># Comment</span>
+    INSTRUCTION arguments
+</div></code></pre>
+<h3 id="from">FROM</h3>
+<p>Docker runs instructions in a Dockerfile in order. A Dockerfile must begin with a <code>FROM</code> instruction. This may be after parser directives, comments, and globally scoped ARGs. The <code>FROM</code> instruction specifies the Parent Image from which you are building. FROM may only be preceded by one or more ARG instructions, which declare arguments that are used in FROM lines in the Dockerfile.</p>
+<p>E.g.</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">FROM</span> httpd:alpine
+</div></code></pre>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">FROM</span> httpd:alpine
+</div></code></pre>
+<p>Where <code>httpd</code> is the image. We want a specific <strong>tagged</strong> version named <code>alpine</code>.</p>
+<p>Alpine is the base Alpine image but there are a number of other versions of Alpine we could use depending on what we want to do.</p>
+<p>You could also name this image.</p>
+<p>E.g.</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">FROM</span> httpd:alpine AS base
+</div></code></pre>
+<p>You could have multiple <code>FROM</code> statements in your Dockerfile.</p>
+<p>In most Dockerfile's FROM is the first command but you can add <code>ARG</code>'s  before a FROM.</p>
+<p>E.g.</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">ARG</span> VERSION=latest
+    <span class="hljs-keyword">FROM</span> httpd:alpine AS base
+</div></code></pre>
+<p>Note that the <code>ARG</code> command can only be used before a FROM command. It can't be used after the FROM command has been run.</p>
+<p>There is an exception to this.</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">ARG</span> VERSION=latest
+    <span class="hljs-keyword">FROM</span> busybox:$VERSION
+
+    <span class="hljs-keyword">ARG</span> VERSION
+    <span class="hljs-keyword">RUN</span><span class="bash"> Echo <span class="hljs-variable">$VERSION</span> &gt; image_version</span>
+</div></code></pre>
+<h3 id="copy">COPY</h3>
+<p>Format</p>
+<blockquote>
+<p>COPY chown source destination</p>
+</blockquote>
+<p>Where you can set permissions for the folder with <code>chown</code>.</p>
+<p><code>source</code> is the source destination. This is the local directory. If you have files in a HTML folder that you want to copy to the image destination use <code>./html/</code>. Where <code>.</code> is the current directory with the Dockerfile and <code>html</code> is the directory in the current directory.</p>
+<p><code>destination</code> is where you want the files loaded to which is usually <code>/usr/local/apache2/htdocs</code> in a linux web server.</p>
+<p>We can extend this by using wildcards in the <code>source</code>.</p>
+<p>E.g.</p>
+<pre class="hljs"><code><div>    <span class="hljs-comment"># use a httpd web server with a minimal alpine Linux system</span>
+    <span class="hljs-keyword">FROM</span> httpd:alpine
+
+    <span class="hljs-keyword">COPY</span><span class="bash"> hom* /usr/<span class="hljs-built_in">local</span>/apache2/htdocs</span>
+</div></code></pre>
+<p>This adds all files starting with <strong>hom</strong>.</p>
+<p>The <code>destination</code> is a relative or absolute path to <code>WORKDIR</code>, where the <code>source</code> files will be copied into the <code>destination</code> container.</p>
+<p><strong>Note:</strong> lines with a <code>#</code> is a comment line.</p>
+<h4 id="from-flag">from flag</h4>
+<p>Optionally <code>COPY</code> accepts a flag <code>--from</code>=<name> that can be used to set the source location to a previous build stage (created with FROM .. AS <name>) that will be used instead of a build context sent by the user. In case a build stage with a specified name can't be found an image with the same name is attempted to be used instead.</p>
+<pre class="hljs"><code><div>    <span class="hljs-keyword">FROM</span> httpd:alpine AS base
+    <span class="hljs-keyword">COPY</span><span class="bash"> ./html/ /usr/<span class="hljs-built_in">local</span>/apache2/htdocs</span>
+
+    <span class="hljs-keyword">FROM</span> httpd AS final
+    <span class="hljs-keyword">COPY</span><span class="bash"> --from=base /usr/<span class="hljs-built_in">local</span>/apache2/htdocs/ /usr/<span class="hljs-built_in">local</span>/apache2/htdocs/app/</span>
+</div></code></pre>
+<p>This is creating an image from two different images (httpd:alpine and httpd). The files from <code>base</code> in <strong>htdocs</strong> are going to be copied to <code>/usr/local/apache2/htdocs/app/</code>.</p>
+<p>Build</p>
+<pre class="hljs"><code><div>    docker build -t alpineweb .
+</div></code></pre>
+<p>Run.</p>
+<pre class="hljs"><code><div>    docker run --name alpine -p 8000:80 alpineweb
+</div></code></pre>
+<p>Now when we can open the browser to <em><a href="http://127.0.0.1:800/app">http://127.0.0.1:800/app</a></em> we will see the index.html file we created.</p>
+<p>Why would you do this? This would come in handy for an ASP.Net core application. The first build we do has the <code>.csproj</code> and <code>bin</code> folder and the next build could remove these files and the source code from our final release build.</p>
+<p>An important point to note is that there are certain commands that create layers. <code>COPY</code> is one of these. In our first copy we create an images and our second copy creates another image. The <code>RUN</code> and <code>ADD</code> commands also build images.</p>
 
 </body>
 </html>
