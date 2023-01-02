@@ -699,3 +699,138 @@ Now when we can open the browser to *<http://127.0.0.1:800/app>* we will see the
 Why would you do this? This would come in handy for an ASP.Net core application. The first build we do has the ``.csproj`` and ``bin`` folder and the next build could remove these files and the source code from our final release build.
 
 An important point to note is that there are certain commands that create layers. ``COPY`` is one of these. In our first copy we create an images and our second copy creates another image. The ``RUN`` and ``ADD`` commands also build images.
+
+### WORKDIR
+
+Format.
+
+> WORKDIR /path/to/workdir
+
+The ``WORKDIR`` instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD instructions that follow it in the Dockerfile. If the ``WORKDIR`` doesn't exist, it will be created even if it's not used in any subsequent Dockerfile instruction.
+
+We can use it like this.
+
+```dockerfile
+    FROM httpd:alpine
+    WORKDIR /usr/local/apache2/htdocs/
+    COPY ./html/ .
+```
+
+``WORKDIR`` will use this path in the container.
+
+### EXPOSE
+
+Format.
+
+> EXPOSE <port> [<port>/<protocol>...]
+
+The ``EXPOSE`` instruction informs Docker that the container listens on the specified network ports at runtime. You can specify whether the port listens on TCP or UDP, and the default is TCP if the protocol is not specified.
+
+The ``EXPOSE`` instruction does not actually publish the port. It functions as a type of documentation between the person who builds the image and the person who runs the container, about which ports are intended to be published. To actually publish the port when running the container, use the -p flag on docker run to publish and map one or more ports, or the -P flag to publish all exposed ports and map them to high-order ports.
+
+By default, EXPOSE assumes TCP. You can also specify UDP:
+
+We can use it like this.
+
+```dockerfile
+    FROM httpd:alpine
+    WORKDIR /usr/local/apache2/htdocs/
+    EXPOSE 80
+    EXPOSE 443
+    COPY ./html/ .
+```
+
+These ports are just for documentation. You need to add the ports when using the RUN command to run a container.
+
+### RUN
+
+``RUN`` has 2 forms:
+
+``RUN`` <command> (shell form, the command is run in a shell, which by default is /bin/sh -c on Linux or cmd /S /C on Windows)
+
+``RUN`` ["executable", "param1", "param2"] (exec form)
+
+The RUN instruction will execute any commands in a new layer on top of the current image and commit the results. The resulting committed image will be used for the next step in the Dockerfile.
+
+Layering ``RUN`` instructions and generating commits conforms to the core concepts of Docker where commits are cheap and containers can be created from any point in an image's history, much like source control.
+
+The exec form makes it possible to avoid shell string munging, and to RUN commands using a base image that does not contain the specified shell executable.
+
+The default shell for the shell form can be changed using the SHELL command.
+
+In the shell form you can use a \ (backslash) to continue a single RUN instruction onto the next line. For example, consider these two lines:
+
+```bash
+    RUN /bin/bash -c 'source $HOME/.bashrc; \
+    echo $HOME'
+```
+
+Together they are equivalent to this single line:
+
+```bash
+    RUN /bin/bash -c 'source $HOME/.bashrc; echo $HOME'
+```
+
+To use a different shell, other than '/bin/sh', use the exec form passing in the desired shell. For example:
+
+```bash
+    RUN ["/bin/bash", "-c", "echo hello"]
+```
+
+**Note:**
+
+The exec form is parsed as a JSON array, which means that you must use double-quotes (") around words not single-quotes (').
+
+### Full working example
+
+The following dockerfile is a complete working example that creates a database as one layer and then adds a database as another layer in the final release build of the container.
+
+```dockerfile
+FROM mcr.microsoft.com/mssql/server:2019-latest AS build
+ENV MSSQL_PID=Developer
+ENV ACCEPT_EULA=Y
+ENV SA_PASSWORD=Pwd12345!
+
+WORKDIR /tmp
+COPY RecordDB_BU.BAK .
+COPY restore-backup.sql .
+
+RUN /opt/mssql/bin/sqlservr --accept-eula & sleep 30 \
+    && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P "Pwd12345!" -i /tmp/restore-backup.sql \
+    && pkill sqlservr
+
+FROM mcr.microsoft.com/mssql/server:2019-latest AS release
+
+ENV ACCEPT_EULA=Y
+
+COPY --from=build /var/opt/mssql/data /var/opt/mssql/data
+```
+
+Sql code that is executed.
+
+#### restore-backup.sql
+
+```sql
+    RESTORE DATABASE [RecordDB] FROM DISK = '/tmp/RecordDB_BU.BAK'
+    WITH FILE = 1,
+    MOVE 'RecordDB' TO '/var/opt/mssql/data/RecordDB.mdf',
+    MOVE 'RecordDB_log' TO '/var/opt/mssql/data/RecordDB.ldf',
+    NOUNLOAD, REPLACE, STATS = 5
+    GO
+``` 
+
+Build
+
+```bash
+    docker build -t record-db .
+```
+
+Run
+
+```bash
+    docker run -p 11433:1433 -d record-db
+```
+
+I can run the container in MSSQL by connecting to server with a name of ``localhost,11433``, SQL Server Authentication, sa, Pwd12345!
+
+For full notes on this process see ``docker-mssql-f.html``.
