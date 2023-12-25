@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>using-docker-with.net-core-console.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="using-docker-to-run-console-programs">Using Docker to run .Net Core console programs</h1>
+<p><a href="https://learn.microsoft.com/en-us/dotnet/core/docker/build-container?tabs=linux&amp;pivots=dotnet-8-0">Containerize a .NET app</a></p>
+<p>Source: <strong>Docker\console</strong></p>
+<p>We will containerize a .NET application with Docker. Containers have many features and benefits, such as being an immutable infrastructure, providing a portable architecture, and enabling scalability. The image can be used to create containers for your local development environment, private cloud, or public cloud.</p>
+<p>Features</p>
+<ul>
+<li>Create and publish a simple .NET app</li>
+<li>Create and configure a Dockerfile for .NET</li>
+<li>Build a Docker image</li>
+<li>Create and run a Docker container</li>
+</ul>
+<p>You'll understand the Docker container build and deploy tasks for a .NET application. The Docker platform uses the Docker engine to quickly build and package apps as Docker images. These images are written in the Dockerfile format to be deployed and run in a layered container.</p>
+<p>Build a new .Net console application.</p>
+<pre class="hljs"><code><div>    dotnet new console -o App -n DotNet.Docker
+</div></code></pre>
+<p>Structure</p>
+<pre class="hljs"><code><div>    console
+        └──📂 App
+            ├──DotNet.Docker.csproj
+            ├──Program.cs
+            └──📂 obj
+                ├── DotNet.Docker.csproj.nuget.dgspec.json
+                ├── DotNet.Docker.csproj.nuget.g.props
+                ├── DotNet.Docker.csproj.nuget.g.targets
+                ├── project.assets.json
+                └── project.nuget.cache
+</div></code></pre>
+<p>The default template creates an app that prints to the terminal and then immediately terminates. I am using an app that loops indefinitely.</p>
+<pre class="hljs"><code><div>    var counter = 0;
+    var max = args.Length is not 0 ? Convert.ToInt32(args[0]) : -1;
+    <span class="hljs-keyword">while</span> (max is -1 || counter &lt; max)
+    {
+        Console.WriteLine($<span class="hljs-string">"Counter: {++counter}"</span>);
+        await Task.Delay(TimeSpan.FromMilliseconds(1_000));
+    }
+</div></code></pre>
+<p>This loops indefinitely.</p>
+<pre class="hljs"><code><div>    dotnet run -- 5
+</div></code></pre>
+<p>An argument of 5 will loop 5 times.</p>
+<h2 id="publish-the-net-app">Publish the .NET app</h2>
+<p>Before adding the .NET app to the Docker image, first it must be published. It's best to have the container run the published version of the app. To publish the app, run the following command:</p>
+<pre class="hljs"><code><div>    dotnet publish -c Release
+</div></code></pre>
+<p><strong>Note:</strong> I had an issue with this. In the folder there is a <code>.csproj</code> file and a <code>.sln</code> file. The publish command told me I had two projects so couldn't run. I renamed the <code>.sln</code> to <code>.sln.old</code> and ran the command again and it worked.</p>
+<p>Use the <strong>ls</strong> command to check that this has worked.</p>
+<pre class="hljs"><code><div>    ls bin/Release/net8.0/publish
+</div></code></pre>
+<p>You should see.</p>
+<blockquote>
+<p>DotNet.Docker.deps.json  DotNet.Docker.dll<em>DotNet.Docker.exe</em>  DotNet.Docker.pdb  DotNet.Docker.runtimeconfig.json</p>
+</blockquote>
+<h2 id="create-the-dockerfile">Create the Dockerfile</h2>
+<p>The Dockerfile file is used by the docker <strong>build</strong> command to create a container image. This file is a text file named Dockerfile that doesn't have an extension.</p>
+<p>Create a file named <strong>Dockerfile</strong> in the directory containing the <code>.csproj</code> and open it in a text editor. This tutorial uses the ASP.NET Core runtime image (which contains the .NET runtime image) and corresponds with the .NET console application.</p>
+<pre class="hljs"><code><div>    FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+    WORKDIR /App
+
+    <span class="hljs-comment"># Copy everything</span>
+    COPY . ./
+    <span class="hljs-comment"># Restore as distinct layers</span>
+    RUN dotnet restore
+    <span class="hljs-comment"># Build and publish a release</span>
+    RUN dotnet publish -c Release -o out
+
+    <span class="hljs-comment"># Build runtime image</span>
+    FROM mcr.microsoft.com/dotnet/aspnet:8.0
+    WORKDIR /App
+    COPY --from=build-env /App/out .
+    ENV DOTNET_EnableDiagnostics=0
+    ENTRYPOINT [<span class="hljs-string">"dotnet"</span>, <span class="hljs-string">"DotNet.Docker.dll"</span>]
+</div></code></pre>
+<p><strong>Note:</strong> The ASP.NET Core runtime image is used intentionally here, although the <code>mcr.microsoft.com/dotnet/runtime:8.0</code> image could have been used.</p>
+<p><strong>Tip:</strong> This Dockerfile uses multi-stage builds, which optimizes the final size of the image by layering the build and leaving only required artifacts. For more information, see Docker Docs: <a href="https://docs.docker.com/build/building/multi-stage/">multi-stage builds</a>.</p>
+<p>The <strong>FROM</strong> keyword requires a fully qualified Docker container image name. The Microsoft Container Registry (MCR, mcr.microsoft.com) is a syndicate of Docker Hub, which hosts publicly accessible containers. The dotnet segment is the container repository, whereas the sdk or aspnet segment is the container image name. The image is tagged with 8.0, which is used for versioning. Thus, <code>mcr.microsoft.com/dotnet/aspnet:8.0</code> is the .NET 8.0 runtime. Make sure that you pull the runtime version that matches the runtime targeted by your SDK. For example, the app created in the previous section used the .NET 8.0 SDK, and the base image referred to in the Dockerfile is tagged with 8.0.</p>
+<p>Save the Dockerfile file. The directory structure of the working folder should look like the following. Some of the deeper-level files and folders have been omitted to save space:</p>
+<pre class="hljs"><code><div>    console
+        └──📂 App
+            ├── Dockerfile
+            ├── DotNet.Docker.csproj
+            ├── Program.cs
+            ├──📂 bin
+            │   └──📂 Release
+            │       └──📂 net8.0
+            │           └──📂 publish
+            │               ├── DotNet.Docker.deps.json
+            │               ├── DotNet.Docker.exe
+            │               ├── DotNet.Docker.dll
+            │               ├── DotNet.Docker.pdb
+            │               └── DotNet.Docker.runtimeconfig.json
+            └──📁 obj
+                └──...
+</div></code></pre>
+<p>Run the following command:</p>
+<pre class="hljs"><code><div>    docker build -t counter-image -f Dockerfile .
+</div></code></pre>
+<p>Docker will process each line in the Dockerfile. The . in the docker build command sets the build context of the image. The <code>-f</code> switch is the path to the Dockerfile. This command builds the image and creates a local repository named <strong>counter-image</strong> that points to that image. After this command finishes, run <code>docker images</code> to see a list of images installed:</p>
+<blockquote>
+<p>REPOSITORY          TAG       IMAGE ID       CREATED         SIZE<br>
+counter-image       latest    3e95851708f9   4 hours ago     218MB</p>
+</blockquote>
+<p>The final steps of the <em>Dockerfile</em> are to create a container from the image and run the app, copy the published app to the container, and define the entry point.</p>
+<pre class="hljs"><code><div>    FROM mcr.microsoft.com/dotnet/aspnet:8.0
+    WORKDIR /App
+    COPY --from=build-env /App/out .
+    ENV DOTNET_EnableDiagnostics=0
+    ENTRYPOINT [<span class="hljs-string">"dotnet"</span>, <span class="hljs-string">"DotNet.Docker.dll"</span>]
+</div></code></pre>
+<p>The <strong>COPY</strong> command tells Docker to copy the specified folder on your computer to a folder in the container. In this example, the publish folder is copied to a folder named <code>App/out</code> in the container.</p>
+<p>The <strong>WORKDIR</strong> command changes the current directory inside of the container to App.</p>
+<p>The next command, <strong>ENTRYPOINT</strong>, tells Docker to configure the container to run as an executable. When the container starts, the <strong>ENTRYPOINT</strong> command runs. When this command ends, the container will automatically stop.</p>
+<p><strong>Tip:</strong> Before .NET 8, containers configured to run as read-only may fail with Failed to create CoreCLR, HRESULT: 0x8007000E. To address this issue, specify a <strong>DOTNET_EnableDiagnostics</strong> environment variable as 0 (just before the ENTRYPOINT step):</p>
+<pre class="hljs"><code><div>    ENV DOTNET_EnableDiagnostics=0
+</div></code></pre>
+<h2 id="create-a-container">Create a container</h2>
+<p>Now that you have an image that contains your app, you can create a container. You can create a container in two ways. First, create a new container that is stopped.</p>
+<pre class="hljs"><code><div>    docker create --name core-counter counter-image
+</div></code></pre>
+<p>This docker create command creates a container based on the <strong>counter-image</strong> image. The output of that command shows you the <strong>CONTAINER ID</strong> of the created container:</p>
+<blockquote>
+<p>fba5e27135cc937b7ff8a60da354c69830950d2328d7dea76b1f883e9034b013</p>
+</blockquote>
+<pre class="hljs"><code><div>    docker ps -a
+</div></code></pre>
+<blockquote>
+<p>CONTAINER ID   IMAGE           COMMAND                  CREATED        STATUS                    PORTS    NAMES<br>
+fba5e27135cc   counter-image   &quot;dotnet DotNet.Docke…&quot;   12 hours ago   Created</p>
+</blockquote>
+<h2 id="manage-the-container">Manage the container</h2>
+<p>The container was created with a specific name <strong>core-counter</strong>, this name is used to manage the container. The following example uses the docker start command to start the container, and then uses the <code>docker ps</code> command to only show containers that are running:</p>
+<pre class="hljs"><code><div>    docker start core-counter
+</div></code></pre>
+<p>Similarly, the <code>docker stop</code> command stops the container. The following example uses the docker stop command to stop the container, and then uses the <code>docker ps</code> command to show that no containers are running:</p>
+<pre class="hljs"><code><div>    docker stop core-counter
+</div></code></pre>
+<h2 id="connect-to-a-container">Connect to a container</h2>
+<p>After a container is running, you can connect to it to see the output. Use the <code>docker start</code> and <code>docker attach</code> commands to start the container and peek at the output stream. In this example, the <strong>Ctrl+C</strong> keystroke is used to detach from the running container. This keystroke ends the process in the container unless otherwise specified, which would stop the container. The --sig-proxy=false parameter ensures that <strong>Ctrl+C</strong> won't stop the process in the container.</p>
+<pre class="hljs"><code><div>    docker attach core-counter
+</div></code></pre>
+<p>Output:</p>
+<blockquote>
+<p>...<br>
+Counter: 207<br>
+Counter: 208<br>
+...</p>
+</blockquote>
+<p>After you detach (<strong>Ctrl+C</strong>) from the container, reattach to verify that it's still running and counting.</p>
+<h2 id="delete-a-container">Delete a container</h2>
+<p>You don't want containers hanging around that don't do anything. Delete the container you previously created. If the container is running, stop it.</p>
+<pre class="hljs"><code><div>    docker stop core-counter
+</div></code></pre>
+<p>Then delete it.</p>
+<pre class="hljs"><code><div>    docker rm core-counter
+</div></code></pre>
+<h2 id="single-run">Single run</h2>
+<p>Docker provides the <code>docker run</code> command to create and run the container as a single command. This command eliminates the need to run <code>docker create</code> and then <code>docker start</code>. You can also set this command to automatically delete the container when the container stops. For example, use <code>docker run -it --rm</code> to do two things, first, automatically use the current terminal to connect to the container, and then when the container finishes, remove it:</p>
+<pre class="hljs"><code><div>    docker run -it --rm counter-image
+</div></code></pre>
+<p>Output:</p>
+<blockquote>
+<p>Counter: 1<br>
+Counter: 2<br>
+Counter: 3<br>
+...</p>
+</blockquote>
+<p><strong>Note:</strong> if we didn't have the infinite loop the container would end after it completed running.</p>
+<p>The container also passes parameters into the execution of the .NET app. To instruct the .NET app to count only to three, pass in 3.</p>
+<pre class="hljs"><code><div>    docker run -it --rm counter-image 3
+</div></code></pre>
+<p>Output:</p>
+<blockquote>
+<p>Counter: 1<br>
+Counter: 2<br>
+Counter: 3</p>
+</blockquote>
+<p>Since the <code>--rm</code> parameter was provided, the container is automatically deleted when the process is stopped.</p>
+<h2 id="change-the-entrypoint">Change the ENTRYPOINT</h2>
+<p>The docker run command also lets you modify the <strong>ENTRYPOINT</strong> command from the Dockerfile and run something else, but only for that container. For example, use the following command to run <strong>bash</strong> or <em>cmd.exe</em>. Edit the command as necessary.</p>
+<pre class="hljs"><code><div>    docker run -it --rm --entrypoint <span class="hljs-string">"bash"</span> counter-image
+</div></code></pre>
+<p>Then, inside the container.</p>
+<pre class="hljs"><code><div>    dotnet DotNet.Docker.dll 7
+</div></code></pre>
+<p>Output:</p>
+<blockquote>
+<p>root@10b7ef2809ed:/App# dotnet DotNet.Docker.dll 7<br>
+Counter: 1<br>
+Counter: 2<br>
+Counter: 3<br>
+Counter: 4<br>
+Counter: 5<br>
+Counter: 6<br>
+Counter: 7<br>
+root@10b7ef2809ed:/App#</p>
+</blockquote>
+<p>You can also do this to get into the container.</p>
+<blockquote>
+<p>PS D:\Docker\console&gt; dc ps<br>
+CONTAINER ID   IMAGE           COMMAND                  CREATED          STATUS          PORTS     NAMES<br>
+20bdc043e938   counter-image   &quot;dotnet DotNet.Docke…&quot;   43 seconds ago   Up 43 seconds             eloquent_mcclintock</p>
+</blockquote>
+<pre class="hljs"><code><div>    docker <span class="hljs-built_in">exec</span> -it 20bdc043e938 <span class="hljs-string">"bash"</span>
+</div></code></pre>
+<blockquote>
+<p>root@20bdc043e938:/App# ls<br>
+DotNet.Docker  DotNet.Docker.deps.json  DotNet.Docker.dll  DotNet.Docker.pdb  DotNet.Docker.runtimeconfig.json</p>
+<p>root@20bdc043e938:/App# dotnet DotNet.Docker.dll 5<br>
+Counter: 1<br>
+Counter: 2<br>
+Counter: 3<br>
+Counter: 4<br>
+Counter: 5</p>
+</blockquote>
+<h2 id="clean-up-resources">Clean up resources</h2>
+<p>You have created containers and images. If you want, delete these resources. Use the following commands to</p>
+<p>List all containers.</p>
+<pre class="hljs"><code><div>    docker ps -a
+</div></code></pre>
+<p>Stop containers that are running by their name.</p>
+<pre class="hljs"><code><div>    docker rm core-counter
+</div></code></pre>
+<p>Next, delete any images that you no longer want on your machine. Delete the image created by your Dockerfile and then delete the .NET image the Dockerfile was based on. You can use the <strong>IMAGE ID</strong> or the <strong>REPOSITORY:TAG</strong> formatted string.</p>
+<pre class="hljs"><code><div>    docker rmi counter-image:latest
+    docker rmi mcr.microsoft.com/dotnet/aspnet:8.0
+</div></code></pre>
+<p><strong>Note:</strong> I'll delete the <strong>counter-image</strong> but I won't delete <strong>aspnet:8.0</strong> as I am constantly using it.</p>
+<h2 id="next-steps">Next steps</h2>
+<p><a href="https://learn.microsoft.com/en-us/dotnet/core/docker/publish-as-container">Containerize a .NET app with dotnet publish</a><br>
+<a href="https://learn.microsoft.com/en-us/dotnet/core/docker/container-images">.NET container images</a><br>
+<a href="https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/building-net-docker-images">Containerize an ASP.NET Core application</a><br>
+<a href="https://azure.microsoft.com/overview/containers/">Azure services that support containers</a><br>
+<a href="https://docs.docker.com/engine/reference/builder/">Dockerfile commands</a><br>
+<a href="https://learn.microsoft.com/en-us/visualstudio/containers/overview">Container Tools for Visual Studio</a></p>
+
+</body>
+</html>
