@@ -210,3 +210,39 @@ You can remove unnamed images. These are temporary images and can be removed.
 ```powershell
     docker system prune -f
 ```
+
+## Examining the container
+
+You can enter the running container with the following Docker command.
+
+```bash
+    docker exec -it record-db-mssql-record-db-1 "bash"
+```
+
+Databases are stored in.
+
+> /var/opt/mssql/data
+
+I can run queries in the container with.
+
+> /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Pwd12345!
+
+Query the database.
+
+> 1> use recorddb;        
+> 2> go       
+> Changed database context to 'RecordDB'.
+> 1> select name from Artist;
+> 2> go
+
+```bash
+    name
+    --------------------------------------------------
+    William Ackerman
+    The Allman Brothers Band
+    Duane Allman
+    Greg Allman
+    Amazing Rhythm Aces
+    Tori Amos
+    ...
+```

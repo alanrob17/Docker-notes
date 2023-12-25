@@ -502,6 +502,36 @@ GO
 <p>You can remove unnamed images. These are temporary images and can be removed.</p>
 <pre class="hljs"><code><div>    docker system prune <span class="hljs-operator">-f</span>
 </div></code></pre>
+<h2 id="examining-the-container">Examining the container</h2>
+<p>You can enter the running container with the following Docker command.</p>
+<pre class="hljs"><code><div>    docker <span class="hljs-built_in">exec</span> -it record-db-mssql-record-db-1 <span class="hljs-string">"bash"</span>
+</div></code></pre>
+<p>Databases are stored in.</p>
+<blockquote>
+<p>/var/opt/mssql/data</p>
+</blockquote>
+<p>I can run queries in the container with.</p>
+<blockquote>
+<p>/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P Pwd12345!</p>
+</blockquote>
+<p>Query the database.</p>
+<blockquote>
+<p>1&gt; use recorddb;<br>
+2&gt; go<br>
+Changed database context to 'RecordDB'.<br>
+1&gt; select name from Artist;<br>
+2&gt; go</p>
+</blockquote>
+<pre class="hljs"><code><div>    name
+    --------------------------------------------------
+    William Ackerman
+    The Allman Brothers Band
+    Duane Allman
+    Greg Allman
+    Amazing Rhythm Aces
+    Tori Amos
+    ...
+</div></code></pre>
 
 </body>
 </html>
