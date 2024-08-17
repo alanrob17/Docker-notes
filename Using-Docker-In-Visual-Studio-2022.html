@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Using-Docker-In-Visual-Studio-2022.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="using-docker-in-visual-studio-2022">Using Docker in Visual Studio 2022</h1>
+<p>I had problems with using Docker inside Visual Studio 2022 and these notes describe my experiences.</p>
+<p>When I create a new Web App Razor Pages project I don't add the solution file into the same folder as my project.</p>
+<p>This creates the following example Dockerfile.</p>
+<pre class="hljs"><code><div>FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY [<span class="hljs-string">"RazorRecordDB/RazorRecordDB.csproj"</span>, <span class="hljs-string">"RazorRecordDB/"</span>]
+RUN dotnet restore <span class="hljs-string">"./RazorRecordDB/RazorRecordDB.csproj"</span>
+COPY . .
+WORKDIR <span class="hljs-string">"/src/RazorRecordDB"</span>
+RUN dotnet build <span class="hljs-string">"./RazorRecordDB.csproj"</span> -c <span class="hljs-variable">$BUILD_CONFIGURATION</span> -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish <span class="hljs-string">"./RazorRecordDB.csproj"</span> -c <span class="hljs-variable">$BUILD_CONFIGURATION</span> -o /app/publish /p:UseAppHost=<span class="hljs-literal">false</span>
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT [<span class="hljs-string">"dotnet"</span>, <span class="hljs-string">"RazorRecordDB.dll"</span>]
+</div></code></pre>
+<p>When I click on Container (Dockerfile) it will run the project in a container.</p>
+<p><img src="assets/images/docker/run-container.jpg" alt="Run a container" title="Run a container"></p>
+<p>This is fine for running in Visual Studio but I found that if I tried to build an image from the Web App root folder where the Dockerfile was located it would fail.</p>
+<p>To get around this issue I would have to copy the Dockerfile into the solution file root (one directory above) and build the image from that directory.</p>
+<pre class="hljs"><code><div>    docker build -t razorrecorddb .
+</div></code></pre>
+<p>By doing this the image would build correctly. This means that Visual Studio must build the Dockerfile from a different folder to where the Dockerfile resides.</p>
+<p>I can get around this issue by creating another Visual Studio solution and in this case adding the solution file to the Web App root folder (not something I would usually do).</p>
+<p>This time the Dockerfile looks like this.</p>
+<pre class="hljs"><code><div>FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER app
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY [<span class="hljs-string">"RazorTest.csproj"</span>, <span class="hljs-string">"."</span>]
+RUN dotnet restore <span class="hljs-string">"./RazorTest.csproj"</span>
+COPY . .
+WORKDIR <span class="hljs-string">"/src/."</span>
+RUN dotnet build <span class="hljs-string">"./RazorTest.csproj"</span> -c <span class="hljs-variable">$BUILD_CONFIGURATION</span> -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish <span class="hljs-string">"./RazorTest.csproj"</span> -c <span class="hljs-variable">$BUILD_CONFIGURATION</span> -o /app/publish /p:UseAppHost=<span class="hljs-literal">false</span>
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT [<span class="hljs-string">"dotnet"</span>, <span class="hljs-string">"RazorTest.dll"</span>]
+</div></code></pre>
+<p>This works in Visual Studio and if I build the image from the Web App root folder.</p>
+<pre class="hljs"><code><div>    docker build -t razortest .
+</div></code></pre>
+<p>I can now run this image in a container.</p>
+<pre class="hljs"><code><div>    docker run -it --name razor-test  -p 8080:8080 razortest
+</div></code></pre>
+<p><strong>Note:</strong> The main takeaway from this is that if I create a solution with the <code>.sln</code> file in the way I normally do it I can modify the paths in a Dockerfile created in Visual Studio to get it to work in the Web App folder to manually create an image.</p>
+<h2 id="connecting-to-a-sql-server">Connecting to a SQL Server</h2>
+<p>When using a Web App container running from Visual Studio and I add a standard connection string to connect to a SQL Server it will <strong>not</strong> work. This is the same if it is connecting to a SQL Server container or the local instance of SQL Server.</p>
+<p>I can get around this with the following.</p>
+<p>SQL Server instance.</p>
+<pre class="hljs"><code><div>    <span class="hljs-string">"ConnectionStrings"</span>: {
+    <span class="hljs-string">"RecordDBContext"</span>: <span class="hljs-string">"Server=host.docker.internal;Database=RecordDB;User Id=sa;Password=mypassword;Encrypt=false;TrustServerCertificate=true;MultipleActiveResultSets=true;"</span>
+    }
+</div></code></pre>
+<p><code>host.docker.internal</code> correctly points to your local SQL Server instance.</p>
+<p><strong>Note:</strong> you can't connect to a SQL Server in this case with <code>TrustedSecurity=true;</code>. You have to use a SQL Server login.</p>
+<p>If you want to connect to a SQL Server running in a container.</p>
+<pre class="hljs"><code><div>    <span class="hljs-string">"ConnectionStrings"</span>: {
+    <span class="hljs-string">"RecordDBContext"</span>: <span class="hljs-string">"Server=host.docker.internal,11433;Database=RecordDB;User Id=sa;Password=mypassword;Encrypt=false;TrustServerCertificate=true;MultipleActiveResultSets=true;"</span>
+    }
+</div></code></pre>
+<p>Where <code>11433</code> is my SQL Server container host port.</p>
+<p><strong>Note:</strong> If I am still running my solution in Visual Studio and I want to run my Web application in IIS Express instead of a container <code>host.docker.internal</code> will still work and connect to my database.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Why would I bother going to the effort of running Docker from Visual Studio?</p>
+<p>There is a very good reason. This allows me to develop my application and continually recompile without having to manually build an image and run my container. I can also debug my application while running in a container.</p>
+<p>Once I complete my application I can then build the final image and upload it to the Docker registry.</p>
+
+</body>
+</html>
