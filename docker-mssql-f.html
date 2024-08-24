@@ -395,6 +395,69 @@ Changed database context to 'RecordDB'.<br>
     ...
 </div></code></pre>
 
+<h2 id="rebuilding-a-new-docker-image">Rebuilding a new Docker image</h2>
+<p>I occasionally update my database and need to rebuild the image. This can be done by running the Docker Compose file.</p>
+<p>When I did this I found that the data in the running container was still showing the old version of the database.</p>
+<p>I found that when you run Docker Compose it will rebuild the image but because the data is stored in the volume I built in the Compose file it will use that data and not the new version of the database.</p>
+<p>To get around that you can delete the volume for the Compose file.</p>
+<h3 id="how-do-i-find-the-name-of-the-volume-i-need-to-delete">How do I find the name of the volume I need to delete?</h3>
+<p>Run.</p>
+<pre class="prettyprint"><code><div>    docker ps
+</div></code></pre>
+<p>Will return the running containers and from here you can get the name of the container you are interested in.</p>
+<blockquote>
+<p>record-db-mssql-sc-recorddb-1</p>
+</blockquote>
+<p>Now run this command list the contents of the container.</p>
+<pre class="prettyprint"><code><div>    dc inspect record-db-mssql-sc-recorddb-1
+</div></code></pre>
+<p>We are interested in the <code>Mounts</code> section.</p>
+<pre class="prettyprint"><code><div>    <span class="hljs-string">"Mounts"</span>: [
+        {
+            <span class="hljs-string">"Type"</span>: <span class="hljs-string">"volume"</span>,
+            <span class="hljs-string">"Name"</span>: <span class="hljs-string">"record-db-mssql-sc_recorddb-data"</span>,
+            <span class="hljs-string">"Source"</span>: <span class="hljs-string">"/var/lib/docker/volumes/record-db-mssql-sc_recorddb-data/_data"</span>,
+            <span class="hljs-string">"Destination"</span>: <span class="hljs-string">"/var/opt/mssql"</span>,
+            <span class="hljs-string">"Driver"</span>: <span class="hljs-string">"local"</span>,
+            <span class="hljs-string">"Mode"</span>: <span class="hljs-string">"z"</span>,
+            <span class="hljs-string">"RW"</span>: <span class="hljs-literal">true</span>,
+            <span class="hljs-string">"Propagation"</span>: <span class="hljs-string">""</span>
+        }
+</div></code></pre>
+<p>Our volume name is.</p>
+<blockquote>
+<p>record-db-mssql-sc_recorddb-data</p>
+</blockquote>
+<h3 id="deleting-the-volume">Deleting the Volume</h3>
+<pre class="prettyprint"><code><div>    docker volume ls
+</div></code></pre>
+<p>Will list all volumes.</p>
+<blockquote>
+<p>DRIVER    VOLUME NAME<br>
+local     docker-python-flask_db-data<br>
+local     kineteco_kineteco<br>
+local     mongodb-demo-app-master_mongo-data<br>
+local     mongodb-learning_mongo-data<br>
+local     mysql-recorddb_mysql-recorddb<br>
+local     postgres-docker_postgres_data<br>
+local     record-db-mssql-sc_recorddb-data<br>
+local     record-db-mssql_recorddb-data<br>
+local     record-db-mssql_sql_data<br>
+local     recorddb-test_sql_data<br>
+local     recordefcore-db-mssql-mc_msql_data<br>
+local     vehicleservice_mongo-data</p>
+</blockquote>
+<p>The volume we need to delete is <code>record-db-mssql-sc_recorddb-data</code>.</p>
+<pre class="prettyprint"><code><div>    docker volume rm record-db-mssql-sc_recorddb-data
+</div></code></pre>
+<p>Delete any containers that are used by our current image.</p>
+<p>Delete the image (or images) that are used by our Docker Compose file.</p>
+<p>Now we are at the stage where we can rebuild the image and we can do this by using.</p>
+<pre class="prettyprint"><code><div>    docker compose up
+</div></code></pre>
+<p>In our Compose file we are building the image if there isn't one. Once this is up and running you should see you new database.</p>
+
+
       </div>
       <!-- starter-template -->
     </div>

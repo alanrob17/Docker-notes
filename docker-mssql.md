@@ -246,3 +246,91 @@ Query the database.
     Tori Amos
     ...
 ```
+
+## Rebuilding a new Docker image
+
+I occasionally update my database and need to rebuild the image. This can be done by running the Docker Compose file.
+
+When I did this I found that the data in the running container was still showing the old version of the database.
+
+I found that when you run Docker Compose it will rebuild the image but because the data is stored in the volume I built in the Compose file it will use that data and not the new version of the database.
+
+To get around that you can delete the volume for the Compose file.
+
+### How do I find the name of the volume I need to delete?
+
+Run.
+
+```bash
+    docker ps
+```
+
+Will return the running containers and from here you can get the name of the container you are interested in.
+
+> record-db-mssql-sc-recorddb-1
+
+Now run this command list the contents of the container.
+
+```bash
+    dc inspect record-db-mssql-sc-recorddb-1
+```
+
+We are interested in the ``Mounts`` section.
+
+```bash
+    "Mounts": [
+        {
+            "Type": "volume",
+            "Name": "record-db-mssql-sc_recorddb-data",
+            "Source": "/var/lib/docker/volumes/record-db-mssql-sc_recorddb-data/_data",
+            "Destination": "/var/opt/mssql",
+            "Driver": "local",
+            "Mode": "z",
+            "RW": true,
+            "Propagation": ""
+        }
+```
+
+Our volume name is.
+
+> record-db-mssql-sc_recorddb-data
+
+### Deleting the Volume
+
+```bash
+    docker volume ls
+```
+
+Will list all volumes.
+
+> DRIVER    VOLUME NAME
+> local     docker-python-flask_db-data     
+> local     kineteco_kineteco       
+> local     mongodb-demo-app-master_mongo-data      
+> local     mongodb-learning_mongo-data     
+> local     mysql-recorddb_mysql-recorddb       
+> local     postgres-docker_postgres_data       
+> local     record-db-mssql-sc_recorddb-data        
+> local     record-db-mssql_recorddb-data       
+> local     record-db-mssql_sql_data        
+> local     recorddb-test_sql_data      
+> local     recordefcore-db-mssql-mc_msql_data      
+> local     vehicleservice_mongo-data
+
+The volume we need to delete is ``record-db-mssql-sc_recorddb-data``.
+
+```bash
+    docker volume rm record-db-mssql-sc_recorddb-data
+```
+
+Delete any containers that are used by our current image.
+
+Delete the image (or images) that are used by our Docker Compose file.
+
+Now we are at the stage where we can rebuild the image and we can do this by using.
+
+```bash
+    docker compose up
+```
+
+In our Compose file we are building the image if there isn't one. Once this is up and running you should see you new database.
