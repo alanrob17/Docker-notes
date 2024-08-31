@@ -72,6 +72,16 @@ In your Dockerfile you can list the contents of a folder with the ``RUN`` comman
 
 The last ``RUN`` **ls** command will list the ``node_modules/express`` folder to see if Express has been installed.
 
+## Using Curl to check if a web page exists
+
+I had a problem not being able to find a web page in a Docker container. The following snippet can check a running container for a particular web page.
+
+```bash
+    docker exec -it record-app-nginx curl http://localhost/record.html
+```
+
+This will print the the ``record.html`` web page contents if it exists in the ``WORKDIR``.
+
 ## Problems with an existing image
 
 I had a couple of images with the JavaScript version of my RecordDB. I build one with Alpine and another with NGINX.
