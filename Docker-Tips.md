@@ -71,3 +71,11 @@ In your Dockerfile you can list the contents of a folder with the ``RUN`` comman
 ```
 
 The last ``RUN`` **ls** command will list the ``node_modules/express`` folder to see if Express has been installed.
+
+## Problems with an existing image
+
+I had a couple of images with the JavaScript version of my RecordDB. I build one with Alpine and another with NGINX.
+
+I went to run the existing image and it stopped working. I had no idea why this happened. The only way to get around this was to delete the existing images and rebuild them.
+
+Once I did this they started working again.

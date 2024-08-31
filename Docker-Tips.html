@@ -413,6 +413,10 @@ master.mdf    model_msdblog.ldf   msdbdata.mdf                tempdb3.ndf  tempd
     RUN ls node_modules &amp;&amp; ls node_modules/express    
 </div></code></pre>
 <p>The last <code>RUN</code> <strong>ls</strong> command will list the <code>node_modules/express</code> folder to see if Express has been installed.</p>
+<h2 id="problems-with-an-existing-image">Problems with an existing image</h2>
+<p>I had a couple of images with the JavaScript version of my RecordDB. I build one with Alpine and another with NGINX.</p>
+<p>I went to run the existing image and it stopped working. I had no idea why this happened. The only way to get around this was to delete the existing images and rebuild them.</p>
+<p>Once I did this they started working again.</p>
 
 </body>
 </html>
