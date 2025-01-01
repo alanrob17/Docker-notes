@@ -26,13 +26,13 @@ And we **COPY** our files from the ``./html/`` folder and load them into the Alp
 
 We are now able to user our **Dockerfile** to build an image.
 
-```powershell
+```bash
 docker build -t hello-docker:1.0.0 .
 ```
 
 Do a search for the image you created.
 
-```powershell
+```bash
 	docker images h*
 ```
 
@@ -43,7 +43,7 @@ Do a search for the image you created.
 
 We can do a history on the image using the **Image Id**.
 
-```powershell
+```bash
 	docker image history 113
 ```
 
@@ -86,7 +86,7 @@ We now create a container to run our image. The container is **read/write** so w
 
 If you destroy the container it is gone but the image stays until you remove it.
 
-```powershell
+```bash
 	docker run --name first-container -p 8080:80 hello-docker:1.0.0
 ```
 
@@ -113,27 +113,33 @@ a014eaedaf47   hello-docker:1.0.0
 
 We can stop the container from running by.
 
-```powershell
+```bash
 	docker stop a01
 ```
 
 If we want to remove the container.
 
-```powershell
+```bash
 	docker rm a01
+```
+
+**Note:** if we want to delete the container after we are finished we could have done this.
+
+```bash
+	docker run --rm --name first-container -p 8080:80 hello-docker:1.0.0
 ```
 
 Add a new file to our *html* folder named ``help.html``.
 
 The original hello-docker:1.0.0 image won't have our changes because images never change so we will create a new image with our changes in it.
 
-```powershell
+```bash
 	docker build -t hello-docker:1.0.1 .
 ```
 
 To check our images
 
-```powershell
+```bash
 	docker images hello-docker*
 ```
  
@@ -143,7 +149,7 @@ To check our images
 
 We increment the tag and we can run it with.
 
-```powershell
+```bash
 	docker run --name second-container -p 8080:80 hello-docker:1.0.1
 ```
 
@@ -153,7 +159,7 @@ Note: we can't name two containers with the same name. This would cause an error
 
 We now have two images with both containing different code.
 
-```powershell
+```bash
 	docker images hello-docker*
 ```
 
@@ -163,7 +169,7 @@ We now have two images with both containing different code.
 
 Shows that I have two images. I know know that ``hello-docker:1.0.1`` has my full web source so I can delete ``hello-docker:1.0.0``.
 
-```powershell
+```bash
 	docker rmi 113
 ```
 
@@ -181,6 +187,285 @@ A Docker image will never change so once you get your code working it will work 
 
 ### Remove all containers
 
-```powershell
+```bash
 	docker container prune
+```
+
+## More notes
+
+Create an Nginx website in a container.
+
+```bash
+	docker run --rm -p 8080:80 --name nginx-compose nginx
+```
+
+This will show the standard Nginx web page. What if we want to add our own web page?
+
+Create a project with a folder named ``static-site``. In this folder add an ``index.html`` page.
+
+Now run this command. Note that this command will only run in Linux.
+
+```bash
+	docker run --rm -p 8080:80 --name nginx-compose -v $(pwd)/static-site:/usr/share/nginx/html nginx
+```
+
+When I run this on a Windows PC with **Powershell** I get an error. To get around this in **Powershell**.
+
+```bash
+	docker run --rm -p 8080:80 --name nginx-compose -v $PWD/static-site:/usr/share/nginx/html nginx
+```
+
+This returns.
+
+![Running my web page](assets/images/docker/my-web-page.jpg "Running my web page")
+
+I can also run this using **Curl**.
+
+```bash
+	curl localhost:8080/index.html
+```
+
+Returns.
+
+```bash
+	<!DOCTYPE html>
+	<html>
+	<head>
+	<title>Hello World</title>
+	</head>
+	<body>
+	<p>Hi! This application should run on docker-compose</p>
+	</body>
+	</html>
+```
+
+Now we have everything needed to migrate this application to Compose. We will create a Compose
+file for the default NGINX installation:
+
+```bash
+services:
+  nginx:
+    image: nginx
+    ports:
+      - 8080:80
+```
+
+When we run this it will show the default NGINX web page. To run our web page add this to the ``docker-compose.yml`` file.
+
+```bash
+services:
+  nginx:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./static-site:/usr/share/nginx/html
+```
+
+Adding the volumes will allow us to run our own HTML content.
+
+### Using your Docker image on Docker Compose
+
+By using Compose, we have achieved running the default NGINX image and changing the default HTML page that was displayed. 
+
+NGINX outputs logfiles in a text format and we want to change this output to JSON data.
+
+We have a running container so we can shell into the container to check the configuration file.
+
+```bash
+	docker exec -it docker-nginx-nginx-1 cat /etc/nginx/nginx.conf
+```
+
+We use cat to print out the configuration file.
+
+This is the section that contains the logfile configuration.
+
+> log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '		
+>                       '$status $body_bytes_sent "$http_referer" '		
+>                       '"$http_user_agent" "$http_x_forwarded_for"';
+
+We will copy the file locally to apply the JSON configuration change:
+
+```bash
+	docker cp docker-nginx-nginx-1:/etc/nginx/nginx.conf nginx.conf
+```
+
+This copies the configuration file to our project folder.
+
+We will change the ``log_format`` to.
+
+> log_format main escape=json '{"remote_addr":"$remote_addr","remote_user":"$remote_user","time":"[$time_local]","request":"$request",\'"status":"$status","body_bytes_sent":"$body_bytes_sent","http_referer":"$http_referer",\'"http_user_agent":"$http_user_agent","http_x_forwarded_for":"$http_x_forwarded_for"}';
+
+**Note:** I had problems with the ``log_format`` command. I changed it to one long line of text.
+
+Now stop the current container and change the image to allow for the new configuration file.
+
+We need to create a ``Dockerfile``.
+
+```bash
+FROM nginx
+
+COPY nginx.conf /etc/nginx/nginx.conf
+```
+
+Create a new image.
+
+```bash
+	docker build -t custom-nginx:0.1 .
+```
+
+Now we need to change the ``docker-compose.yml`` file to allow for the custom image that we created.
+
+```bash
+services:
+  nginx:
+    image: custom-nginx:0.1
+    ports:
+      - 8080:80
+    volumes:
+      - ./static-site:/usr/share/nginx/html
+```
+
+### Logfiles
+
+There are two logfiles created by the NGINX container.
+
+> /var/log/nginx/access.log		
+> 		
+> /var/log/nginx/error.log
+
+I exec'd into this container and couldn't see any logs. To see the logfiles you can run the following command to continuously stream the logfiles.
+
+```bash
+	docker logs -f 0463
+```
+
+``-f`` streams the logfiles continuously for the container ``0463``.
+
+To be able to see content from the logfiles I requested a dummy webpage and this created an error.
+
+Most of the output was in a JSON format so I know that my configuration changes are working.
+
+## Hosting on a Registry
+
+At present the images we are using are locked to our local computer. What can we do to use the image from anywhere in the world. We would host it in a centralised image registry.
+
+There are a number of image registries but we will be using [Docker Hub](https://hub.docker.com).
+
+My image registry on Docker hub is ``alanrob17``. [My Docker Hub](https://hub.docker.com/search?q=alanrob17).
+
+I have a number of images hosted on Docker hub and the format for these images is.
+
+> alanrob17/record-app-nginx:ctr2024
+
+Where:
+
+* ``alanrob17`` is my Docker Hub ID.
+* ``record-app-nginx`` is my Image.
+* ctr2024 is my Tag.
+
+**Note:** I don't have a Tag on this image so my real registry image is.
+
+> alanrob17/record-app-nginx
+
+**Note:** in future I need to give each image a Tag.
+
+To push to Docker hub.
+
+```bash
+	docker image push alanrob17/record-app-nginx
+```
+
+So at this stage we have created our application. We have created a Dockerfile that tells Docker how to package our application up and pushed it to Docker Hub.
+
+It can be found at (Record app)[https://hub.docker.com/r/alanrob17/record-app-nginx].
+
+## Running our container
+
+Imagine that an image is a stopped container and a container is a running image.
+
+First things is to delete your current image.
+
+Now run.
+
+```bash
+    docker container run -d --rm --name alan-web -p 8000:80 alanrob17/record-app-nginx
+```
+
+Returns.
+
+> 97f9a0651629f2636fd7df59fc50ca09a0f2ac078794c5a26fbb81396f89e2ee
+
+As we are running detached it just leaves us with the ID of the container.
+
+Breakdown of the command.
+
+* ``-d`` means run detached.
+* ``-rm`` means remove the container once it is finished running.
+* ``--name alan-web`` means **alan-web** is the name of the container
+* ``-p 8000:80`` means ports. **8000** is the port on the Docker host and **80** is the port that the container is listening on.
+* ``alanrob17/record-app-nginx`` is the image that we want to use. In this case it doesn't exist on our local machine so it will try to find and pull it from Docker hub.
+
+**Note:** the full name of the image is ``docker.io/alanrob17/record-app-nginx``. If you don't add ``docker.io`` it assumes that you are pulling the image form Docker Hub.
+
+You can list the containers running with.
+
+```bash
+    docker container ps
+```
+
+Or.
+
+```bash
+    docker container ls
+```
+
+## Managing a Containerised App
+
+We currently have a containerised application running and we can run this to stop it.
+
+```bash
+    docker container stop alan-web
+```
+
+Or.
+
+```bash
+    docker container stop 97f9a
+```
+
+Where **97f9a** is the start of the container Id.
+
+We can then remove the container if we need to with.
+
+```bash
+    docker container rm alan-web
+```
+
+**Note:** we didn't have to do this because we used the switch ``--rm`` which automatically remove the container once we finished running it.
+
+## Running containers interactively
+
+In the previous example we used the switch ``-d`` to detach the container from our terminal. We don't have to do this and we can watch the container running with the ``-it`` switch which means interactively or in a terminal.
+
+Run another container  from an image.
+
+```bash
+    docker container run -it --name alpine-test alpine sh
+```
+
+This time it leaves you with a command prompt.
+
+You are inside the shell and can run commands.
+
+You can exit the shell with the command **exit**.
+
+If you want to leave the shell (container) running you can exit gracefully with **Ctrl-P-Q**.
+
+If you do a ``docker ps`` you will notice that the container is still running.
+
+If you want to stop and remove the container in one command.
+
+```bash
+	docker rm alpine-test -f
 ```

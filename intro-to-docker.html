@@ -365,7 +365,7 @@ code {
           : 'default'
     });
   </script>
-<h1 id="tim-corey---introduction-to-docker">Tim Corey - Introduction to Docker</h1>
+<h1 id="introduction-to-docker">Introduction to Docker</h1>
 <h2 id="create-an-image">Create an image</h2>
 <p>We want to create a web server to run some HTML code. A very small image can be created using <code>httpd</code> which will use a cutdown version of Alpine as the operating system. This will only be around 55 Mb in size.</p>
 <p>Command to pull the image: <strong>docker pull httpd:alpine</strong> .</p>
@@ -377,22 +377,22 @@ code {
 <pre class="hljs"><code><div>	<span class="hljs-keyword">FROM</span> httpd:alpine
 	<span class="hljs-keyword">COPY</span><span class="bash"> ./html/ /usr/<span class="hljs-built_in">local</span>/apache2/htdocs/</span>
 </div></code></pre>
-<p>Where <strong>FROM</strong> is the image to pull.<br>
+<p>Where <strong>FROM</strong> is the image to pull.
 And we <strong>COPY</strong> our files from the <code>./html/</code> folder and load them into the Alpine image folder, <code>/usr/local/apache2/htdocs/</code> .</p>
 <p>We are now able to user our <strong>Dockerfile</strong> to build an image.</p>
-<pre class="hljs"><code><div>docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span> .
+<pre class="hljs"><code><div>docker build -t hello-docker:1.0.0 .
 </div></code></pre>
 <p>Do a search for the image you created.</p>
 <pre class="hljs"><code><div>	docker images h*
 </div></code></pre>
 <blockquote>
-<p>REPOSITORY     TAG       IMAGE ID       CREATED         SIZE<br>
-hello-docker   1.0.0     113447870bc6   3 minutes ago   55MB<br>
-hellonode      latest    fc0b418d4dbd   11 months ago   113MB<br>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED         SIZE
+hello-docker   1.0.0     113447870bc6   3 minutes ago   55MB
+hellonode      latest    fc0b418d4dbd   11 months ago   113MB
 hello-world    latest    feb5d9fea6a5   13 months ago   13.3kB</p>
 </blockquote>
 <p>We can do a history on the image using the <strong>Image Id</strong>.</p>
-<pre class="hljs"><code><div>	docker image history <span class="hljs-number">113</span>
+<pre class="hljs"><code><div>	docker image <span class="hljs-built_in">history</span> 113
 </div></code></pre>
 <p>Is the complete setup of our image and includes the byte size of each part.</p>
 <pre class="hljs"><code><div>IMAGE          CREATED         CREATED BY                                      SIZE      COMMENT
@@ -426,7 +426,7 @@ hello-world    latest    feb5d9fea6a5   13 months ago   13.3kB</p>
 <h2 id="create-a-container">Create a container</h2>
 <p>We now create a container to run our image. The container is <strong>read/write</strong> so we can add content to it. If you stop running the container you will lose your changes because the container will be created from your existing image which is <strong>read only</strong>.</p>
 <p>If you destroy the container it is gone but the image stays until you remove it.</p>
-<pre class="hljs"><code><div>	docker run -<span class="hljs-literal">-name</span> first<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">0</span>
+<pre class="hljs"><code><div>	docker run --name first-container -p 8080:80 hello-docker:1.0.0
 </div></code></pre>
 <p>We call our container <code>first-container</code>.</p>
 <p>We need a port to run our web server, <code>-p 8080:80</code> .</p>
@@ -447,33 +447,36 @@ a014eaedaf47   hello-docker:1.0.0
 <p>If we want to remove the container.</p>
 <pre class="hljs"><code><div>	docker rm a01
 </div></code></pre>
+<p><strong>Note:</strong> if we want to delete the container after we are finished we could have done this.</p>
+<pre class="hljs"><code><div>	docker run --rm --name first-container -p 8080:80 hello-docker:1.0.0
+</div></code></pre>
 <p>Add a new file to our <em>html</em> folder named <code>help.html</code>.</p>
 <p>The original hello-docker:1.0.0 image won't have our changes because images never change so we will create a new image with our changes in it.</p>
-<pre class="hljs"><code><div>	docker build <span class="hljs-literal">-t</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span> .
+<pre class="hljs"><code><div>	docker build -t hello-docker:1.0.1 .
 </div></code></pre>
 <p>To check our images</p>
-<pre class="hljs"><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+<pre class="hljs"><code><div>	docker images hello-docker*
 </div></code></pre>
 <blockquote>
-<p>REPOSITORY     TAG       IMAGE ID       CREATED              SIZE<br>
-hello-docker   1.0.1     71a874cb898c   About a minute ago   55MB<br>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED              SIZE
+hello-docker   1.0.1     71a874cb898c   About a minute ago   55MB
 hello-docker   1.0.0     113447870bc6   About an hour ago    55MB</p>
 </blockquote>
 <p>We increment the tag and we can run it with.</p>
-<pre class="hljs"><code><div>	docker run -<span class="hljs-literal">-name</span> second<span class="hljs-literal">-container</span> <span class="hljs-literal">-p</span> <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> hello<span class="hljs-literal">-docker</span>:<span class="hljs-number">1.0</span>.<span class="hljs-number">1</span>
+<pre class="hljs"><code><div>	docker run --name second-container -p 8080:80 hello-docker:1.0.1
 </div></code></pre>
 <p>We now have our new website running.</p>
 <p>Note: we can't name two containers with the same name. This would cause an error.</p>
 <p>We now have two images with both containing different code.</p>
-<pre class="hljs"><code><div>	docker images hello<span class="hljs-literal">-docker</span>*
+<pre class="hljs"><code><div>	docker images hello-docker*
 </div></code></pre>
 <blockquote>
-<p>REPOSITORY     TAG       IMAGE ID       CREATED       SIZE<br>
-hello-docker   1.0.1     71a874cb898c   2 hours ago   55MB<br>
+<p>REPOSITORY     TAG       IMAGE ID       CREATED       SIZE
+hello-docker   1.0.1     71a874cb898c   2 hours ago   55MB
 hello-docker   1.0.0     113447870bc6   3 hours ago   55MB</p>
 </blockquote>
 <p>Shows that I have two images. I know know that <code>hello-docker:1.0.1</code> has my full web source so I can delete <code>hello-docker:1.0.0</code>.</p>
-<pre class="hljs"><code><div>	docker rmi <span class="hljs-number">113</span>
+<pre class="hljs"><code><div>	docker rmi 113
 </div></code></pre>
 <p>Where <code>rmi</code> removes an image.</p>
 <h2 id="benefits-of-docker">Benefits of Docker</h2>
@@ -483,6 +486,179 @@ hello-docker   1.0.0     113447870bc6   3 hours ago   55MB</p>
 <p>A Docker image will never change so once you get your code working it will work forever on any system or cloud that runs Docker images.</p>
 <h3 id="remove-all-containers">Remove all containers</h3>
 <pre class="hljs"><code><div>	docker container prune
+</div></code></pre>
+<h2 id="more-notes">More notes</h2>
+<p>Create an Nginx website in a container.</p>
+<pre class="hljs"><code><div>	docker run --rm -p 8080:80 --name nginx-compose nginx
+</div></code></pre>
+<p>This will show the standard Nginx web page. What if we want to add our own web page?</p>
+<p>Create a project with a folder named <code>static-site</code>. In this folder add an <code>index.html</code> page.</p>
+<p>Now run this command. Note that this command will only run in Linux.</p>
+<pre class="hljs"><code><div>	docker run --rm -p 8080:80 --name nginx-compose -v $(<span class="hljs-built_in">pwd</span>)/static-site:/usr/share/nginx/html nginx
+</div></code></pre>
+<p>When I run this on a Windows PC with <strong>Powershell</strong> I get an error. To get around this in <strong>Powershell</strong>.</p>
+<pre class="hljs"><code><div>	docker run --rm -p 8080:80 --name nginx-compose -v <span class="hljs-variable">$PWD</span>/static-site:/usr/share/nginx/html nginx
+</div></code></pre>
+<p>This returns.</p>
+<p><img src="assets/images/docker/my-web-page.jpg" alt="Running my web page" title="Running my web page"></p>
+<p>I can also run this using <strong>Curl</strong>.</p>
+<pre class="hljs"><code><div>	curl localhost:8080/index.html
+</div></code></pre>
+<p>Returns.</p>
+<pre class="hljs"><code><div>	&lt;!DOCTYPE html&gt;
+	&lt;html&gt;
+	&lt;head&gt;
+	&lt;title&gt;Hello World&lt;/title&gt;
+	&lt;/head&gt;
+	&lt;body&gt;
+	&lt;p&gt;Hi! This application should run on docker-compose&lt;/p&gt;
+	&lt;/body&gt;
+	&lt;/html&gt;
+</div></code></pre>
+<p>Now we have everything needed to migrate this application to Compose. We will create a Compose
+file for the default NGINX installation:</p>
+<pre class="hljs"><code><div>services:
+  nginx:
+    image: nginx
+    ports:
+      - 8080:80
+</div></code></pre>
+<p>When we run this it will show the default NGINX web page. To run our web page add this to the <code>docker-compose.yml</code> file.</p>
+<pre class="hljs"><code><div>services:
+  nginx:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./static-site:/usr/share/nginx/html
+</div></code></pre>
+<p>Adding the volumes will allow us to run our own HTML content.</p>
+<h3 id="using-your-docker-image-on-docker-compose">Using your Docker image on Docker Compose</h3>
+<p>By using Compose, we have achieved running the default NGINX image and changing the default HTML page that was displayed.</p>
+<p>NGINX outputs logfiles in a text format and we want to change this output to JSON data.</p>
+<p>We have a running container so we can shell into the container to check the configuration file.</p>
+<pre class="hljs"><code><div>	docker <span class="hljs-built_in">exec</span> -it docker-nginx-nginx-1 cat /etc/nginx/nginx.conf
+</div></code></pre>
+<p>We use cat to print out the configuration file.</p>
+<p>This is the section that contains the logfile configuration.</p>
+<blockquote>
+<p>log_format  main  '$remote_addr - $remote_user [$time_local] &quot;$request&quot; '		
+'$status $body_bytes_sent &quot;$http_referer&quot; '		
+'&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;';</p>
+</blockquote>
+<p>We will copy the file locally to apply the JSON configuration change:</p>
+<pre class="hljs"><code><div>	docker cp docker-nginx-nginx-1:/etc/nginx/nginx.conf nginx.conf
+</div></code></pre>
+<p>This copies the configuration file to our project folder.</p>
+<p>We will change the <code>log_format</code> to.</p>
+<blockquote>
+<p>log_format main escape=json '{&quot;remote_addr&quot;:&quot;$remote_addr&quot;,&quot;remote_user&quot;:&quot;$remote_user&quot;,&quot;time&quot;:&quot;[$time_local]&quot;,&quot;request&quot;:&quot;$request&quot;,'&quot;status&quot;:&quot;$status&quot;,&quot;body_bytes_sent&quot;:&quot;$body_bytes_sent&quot;,&quot;http_referer&quot;:&quot;$http_referer&quot;,'&quot;http_user_agent&quot;:&quot;$http_user_agent&quot;,&quot;http_x_forwarded_for&quot;:&quot;$http_x_forwarded_for&quot;}';</p>
+</blockquote>
+<p><strong>Note:</strong> I had problems with the <code>log_format</code> command. I changed it to one long line of text.</p>
+<p>Now stop the current container and change the image to allow for the new configuration file.</p>
+<p>We need to create a <code>Dockerfile</code>.</p>
+<pre class="hljs"><code><div>FROM nginx
+
+COPY nginx.conf /etc/nginx/nginx.conf
+</div></code></pre>
+<p>Create a new image.</p>
+<pre class="hljs"><code><div>	docker build -t custom-nginx:0.1 .
+</div></code></pre>
+<p>Now we need to change the <code>docker-compose.yml</code> file to allow for the custom image that we created.</p>
+<pre class="hljs"><code><div>services:
+  nginx:
+    image: custom-nginx:0.1
+    ports:
+      - 8080:80
+    volumes:
+      - ./static-site:/usr/share/nginx/html
+</div></code></pre>
+<h3 id="logfiles">Logfiles</h3>
+<p>There are two logfiles created by the NGINX container.</p>
+<blockquote>
+<p>/var/log/nginx/access.log</p>
+<p>/var/log/nginx/error.log</p>
+</blockquote>
+<p>I exec'd into this container and couldn't see any logs. To see the logfiles you can run the following command to continuously stream the logfiles.</p>
+<pre class="hljs"><code><div>	docker logs -f 0463
+</div></code></pre>
+<p><code>-f</code> streams the logfiles continuously for the container <code>0463</code>.</p>
+<p>To be able to see content from the logfiles I requested a dummy webpage and this created an error.</p>
+<p>Most of the output was in a JSON format so I know that my configuration changes are working.</p>
+<h2 id="hosting-on-a-registry">Hosting on a Registry</h2>
+<p>At present the images we are using are locked to our local computer. What can we do to use the image from anywhere in the world. We would host it in a centralised image registry.</p>
+<p>There are a number of image registries but we will be using <a href="https://hub.docker.com">Docker Hub</a>.</p>
+<p>My image registry on Docker hub is <code>alanrob17</code>. <a href="https://hub.docker.com/search?q=alanrob17">My Docker Hub</a>.</p>
+<p>I have a number of images hosted on Docker hub and the format for these images is.</p>
+<blockquote>
+<p>alanrob17/record-app-nginx:ctr2024</p>
+</blockquote>
+<p>Where:</p>
+<ul>
+<li><code>alanrob17</code> is my Docker Hub ID.</li>
+<li><code>record-app-nginx</code> is my Image.</li>
+<li>ctr2024 is my Tag.</li>
+</ul>
+<p><strong>Note:</strong> I don't have a Tag on this image so my real registry image is.</p>
+<blockquote>
+<p>alanrob17/record-app-nginx</p>
+</blockquote>
+<p><strong>Note:</strong> in future I need to give each image a Tag.</p>
+<p>To push to Docker hub.</p>
+<pre class="hljs"><code><div>	docker image push alanrob17/record-app-nginx
+</div></code></pre>
+<p>So at this stage we have created our application. We have created a Dockerfile that tells Docker how to package our application up and pushed it to Docker Hub.</p>
+<p>It can be found at (Record app)[https://hub.docker.com/r/alanrob17/record-app-nginx].</p>
+<h2 id="running-our-container">Running our container</h2>
+<p>Imagine that an image is a stopped container and a container is a running image.</p>
+<p>First things is to delete your current image.</p>
+<p>Now run.</p>
+<pre class="hljs"><code><div>    docker container run -d --rm --name alan-web -p 8000:80 alanrob17/record-app-nginx
+</div></code></pre>
+<p>Returns.</p>
+<blockquote>
+<p>97f9a0651629f2636fd7df59fc50ca09a0f2ac078794c5a26fbb81396f89e2ee</p>
+</blockquote>
+<p>As we are running detached it just leaves us with the ID of the container.</p>
+<p>Breakdown of the command.</p>
+<ul>
+<li><code>-d</code> means run detached.</li>
+<li><code>-rm</code> means remove the container once it is finished running.</li>
+<li><code>--name alan-web</code> means <strong>alan-web</strong> is the name of the container</li>
+<li><code>-p 8000:80</code> means ports. <strong>8000</strong> is the port on the Docker host and <strong>80</strong> is the port that the container is listening on.</li>
+<li><code>alanrob17/record-app-nginx</code> is the image that we want to use. In this case it doesn't exist on our local machine so it will try to find and pull it from Docker hub.</li>
+</ul>
+<p><strong>Note:</strong> the full name of the image is <code>docker.io/alanrob17/record-app-nginx</code>. If you don't add <code>docker.io</code> it assumes that you are pulling the image form Docker Hub.</p>
+<p>You can list the containers running with.</p>
+<pre class="hljs"><code><div>    docker container ps
+</div></code></pre>
+<p>Or.</p>
+<pre class="hljs"><code><div>    docker container ls
+</div></code></pre>
+<h2 id="managing-a-containerised-app">Managing a Containerised App</h2>
+<p>We currently have a containerised application running and we can run this to stop it.</p>
+<pre class="hljs"><code><div>    docker container stop alan-web
+</div></code></pre>
+<p>Or.</p>
+<pre class="hljs"><code><div>    docker container stop 97f9a
+</div></code></pre>
+<p>Where <strong>97f9a</strong> is the start of the container Id.</p>
+<p>We can then remove the container if we need to with.</p>
+<pre class="hljs"><code><div>    docker container rm alan-web
+</div></code></pre>
+<p><strong>Note:</strong> we didn't have to do this because we used the switch <code>--rm</code> which automatically remove the container once we finished running it.</p>
+<h2 id="running-containers-interactively">Running containers interactively</h2>
+<p>In the previous example we used the switch <code>-d</code> to detach the container from our terminal. We don't have to do this and we can watch the container running with the <code>-it</code> switch which means interactively or in a terminal.</p>
+<p>Run another container  from an image.</p>
+<pre class="hljs"><code><div>    docker container run -it --name alpine-test alpine sh
+</div></code></pre>
+<p>This time it leaves you with a command prompt.</p>
+<p>You are inside the shell and can run commands.</p>
+<p>You can exit the shell with the command <strong>exit</strong>.</p>
+<p>If you want to leave the shell (container) running you can exit gracefully with <strong>Ctrl-P-Q</strong>.</p>
+<p>If you do a <code>docker ps</code> you will notice that the container is still running.</p>
+<p>If you want to stop and remove the container in one command.</p>
+<pre class="hljs"><code><div>	docker rm alpine-test -f
 </div></code></pre>
 
 </body>
